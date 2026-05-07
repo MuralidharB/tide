@@ -1,15 +1,26 @@
 """Watchlist — equities being tracked alongside the macro composite.
 
-Static metadata (target price, fwd P/E, qualitative status) is hardcoded here. Daily
-prices for each ticker + the benchmark (XLV) are stored in observations under
-`wl_<ticker>` series ids and refreshed via the `tide-ingest watchlist` CLI subcommand.
+Configuration lives at `<project_root>/watchlist.toml` so quarterly target/P/E
+updates don't require code changes. Live fields (price, returns) are pulled
+from Yahoo by `tide-ingest watchlist`. Manual fields (target_price, fwd_pe,
+status, name, sector) come from the TOML.
+
+`fwd_pe` stays manual because forward analyst-consensus P/E isn't reachable
+on free tiers — Yahoo's quoteSummary endpoint sits behind the crumb-auth
+wall that breaks yfinance, and free fundamentals APIs typically don't carry
+forward estimates. Refresh quarterly with earnings.
 """
 from __future__ import annotations
 
+import tomllib
 from dataclasses import dataclass
 from typing import Literal
 
+from tide.config import PROJECT_ROOT
+
 WatchlistStatus = Literal["watching", "starter", "building"]
+
+CONFIG_PATH = PROJECT_ROOT / "watchlist.toml"
 
 
 @dataclass(frozen=True)
@@ -17,24 +28,30 @@ class WatchlistTicker:
     ticker: str
     name: str
     sub: str                  # short sector descriptor
-    target_price: float       # analyst-agnostic personal target
-    fwd_pe: str               # display string with × suffix; refresh manually each Q
+    target_price: float       # personal target, not analyst consensus
+    fwd_pe: str               # display string with × suffix
     status: WatchlistStatus
 
 
-# Healthcare de-rated quality basket — same 8 names from the mockup.
-TICKERS: tuple[WatchlistTicker, ...] = (
-    WatchlistTicker("MRK",  "Merck & Co.",     "Pharma",          128.0, "12.4×", "starter"),
-    WatchlistTicker("UNH",  "UnitedHealth",    "Managed Care",    420.0, "11.8×", "building"),
-    WatchlistTicker("TMO",  "Thermo Fisher",   "Life Sci Tools",  630.0, "21.6×", "watching"),
-    WatchlistTicker("DHR",  "Danaher",         "Life Sci Tools",  275.0, "24.2×", "watching"),
-    WatchlistTicker("ABBV", "AbbVie",          "Pharma",          215.0, "14.3×", "watching"),
-    WatchlistTicker("GILD", "Gilead Sciences", "Pharma",          110.0, "10.7×", "starter"),
-    WatchlistTicker("NVO",  "Novo Nordisk",    "Pharma · ADR",     78.0, "17.2×", "watching"),
-    WatchlistTicker("MDT",  "Medtronic",       "Med Devices",     105.0, "15.1×", "watching"),
-)
+def _load() -> tuple[tuple[WatchlistTicker, ...], str]:
+    with open(CONFIG_PATH, "rb") as f:
+        data = tomllib.load(f)
+    tickers = tuple(
+        WatchlistTicker(
+            ticker=t["ticker"],
+            name=t["name"],
+            sub=t["sector"],
+            target_price=float(t["target_price"]),
+            fwd_pe=str(t["fwd_pe"]),
+            status=t["status"],
+        )
+        for t in data.get("tickers", [])
+    )
+    benchmark = str(data.get("benchmark", "XLV"))
+    return tickers, benchmark
 
-BENCHMARK = "XLV"
+
+TICKERS, BENCHMARK = _load()
 
 
 def all_symbols_to_ingest() -> list[str]:

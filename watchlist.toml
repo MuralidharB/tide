@@ -1,0 +1,82 @@
+# Watchlist configuration — edit this file to add/remove tickers or adjust your
+# personal targets / P/E / status without touching code.
+#
+# Live fields (refreshed daily by `make ingest-watchlist`):
+#   - current price
+#   - 30-day return
+#   - 30-day return relative to the benchmark
+#   - 30-day price sparkline
+#
+# Manual fields (refresh quarterly with earnings or whenever your view changes):
+#   - target_price : your personal price target, not analyst consensus
+#   - fwd_pe       : forward P/E as a display string (e.g. "12.4×"). Analyst-
+#                    consensus forward P/E isn't available on free tiers
+#                    (Yahoo's quoteSummary endpoint requires the crumb-auth
+#                    wall that breaks yfinance), so this stays manual.
+#   - status       : "watching" | "starter" | "building"
+
+benchmark = "XLV"
+
+[[tickers]]
+ticker       = "MRK"
+name         = "Merck & Co."
+sector       = "Pharma"
+target_price = 128.0
+fwd_pe       = "12.4×"
+status       = "starter"
+
+[[tickers]]
+ticker       = "UNH"
+name         = "UnitedHealth"
+sector       = "Managed Care"
+target_price = 420.0
+fwd_pe       = "11.8×"
+status       = "building"
+
+[[tickers]]
+ticker       = "TMO"
+name         = "Thermo Fisher"
+sector       = "Life Sci Tools"
+target_price = 630.0
+fwd_pe       = "21.6×"
+status       = "watching"
+
+[[tickers]]
+ticker       = "DHR"
+name         = "Danaher"
+sector       = "Life Sci Tools"
+target_price = 275.0
+fwd_pe       = "24.2×"
+status       = "watching"
+
+[[tickers]]
+ticker       = "ABBV"
+name         = "AbbVie"
+sector       = "Pharma"
+target_price = 215.0
+fwd_pe       = "14.3×"
+status       = "watching"
+
+[[tickers]]
+ticker       = "GILD"
+name         = "Gilead Sciences"
+sector       = "Pharma"
+target_price = 110.0
+fwd_pe       = "10.7×"
+status       = "starter"
+
+[[tickers]]
+ticker       = "NVO"
+name         = "Novo Nordisk"
+sector       = "Pharma · ADR"
+target_price = 78.0
+fwd_pe       = "17.2×"
+status       = "watching"
+
+[[tickers]]
+ticker       = "MDT"
+name         = "Medtronic"
+sector       = "Med Devices"
+target_price = 105.0
+fwd_pe       = "15.1×"
+status       = "watching"

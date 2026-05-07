@@ -317,12 +317,19 @@ body {
   display: flex; justify-content: space-between; align-items: center;
   font-family: var(--mono); font-size: 10px; color: var(--text-3); letter-spacing: 0.05em;
 }
-.mock-badge {
+.mock-badge, .live-badge {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 10px;
-  background: rgba(224, 160, 46, 0.1); border: 1px solid rgba(224, 160, 46, 0.3);
-  color: var(--warn); border-radius: 3px;
+  border-radius: 3px;
   font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+}
+.mock-badge {
+  background: rgba(224, 160, 46, 0.1); border: 1px solid rgba(224, 160, 46, 0.3);
+  color: var(--warn);
+}
+.live-badge {
+  background: rgba(111, 207, 151, 0.1); border: 1px solid rgba(111, 207, 151, 0.3);
+  color: var(--pos);
 }
 
 .aside-note {

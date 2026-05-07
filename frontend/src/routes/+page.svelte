@@ -60,8 +60,8 @@
 
 <div class="footer">
   <div>
-    <span class="mock-badge">⚠ Wave 1 scaffold</span>
-    <span style="margin-left: 16px;">Real M2 data via FRED · other 18 metrics pending</span>
+    <span class="live-badge">● Live</span>
+    <span style="margin-left: 16px;">{dashboard?.composite?.metrics_total ?? 0} of 19 metrics live · daily refresh</span>
   </div>
-  <div>FRED · FINRA · Treasury TIC · Cboe · CFTC · ICI · yfinance</div>
+  <div>FRED · Yahoo · Treasury TIC · CFTC · AAII · SqueezeMetrics</div>
 </div>
