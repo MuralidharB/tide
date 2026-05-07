@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tide"
+version = "0.1.0"
+description = "Capital Pressure Observatory — backend"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "duckdb>=0.10",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "fredapi>=0.5",
+    "apscheduler>=3.10",
+    "httpx>=0.27",
+    "click>=8.1",
+    "python-dotenv>=1.0",
+    # xlrd is for AAII's binary .xls (OLE2) sentiment file. Modern pandas dropped
+    # binary-xls support; xlrd keeps it. Pinned because xlrd is feature-frozen at 2.0.x.
+    "xlrd>=2.0,<3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+tide-ingest = "tide.ingest.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["tide*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

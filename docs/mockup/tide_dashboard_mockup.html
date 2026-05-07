@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TIDE · Capital Pressure Observatory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&family=Inter+Tight:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0E0D0B;
+  --bg-elev: #16140F;
+  --bg-card: #1A1714;
+  --bg-card-hover: #221E18;
+  --border: #2C2823;
+  --border-soft: #221F1A;
+  --text: #F0EAD6;
+  --text-2: #948B7A;
+  --text-3: #5C544A;
+  --pos: #6FCF97;
+  --neg: #C7574B;
+  --warn: #E0A02E;
+  --hi: #F4C95D;
+  --tier1: #4A8FE7;
+  --tier2: #B97AE0;
+  --tier3: #5DD3C0;
+  --tier4: #F4C95D;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter Tight', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  background-image: 
+    radial-gradient(circle at 20% 0%, rgba(244, 201, 93, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 100%, rgba(74, 143, 231, 0.03) 0%, transparent 50%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+  background: var(--bg-elev);
+  border-right: 1px solid var(--border-soft);
+  padding: 28px 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.brand {
+  padding: 0 24px 32px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 24px;
+}
+
+.brand-mark {
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 144, 'SOFT' 50;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.brand-mark::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--pos);
+  box-shadow: 0 0 12px rgba(111, 207, 151, 0.6);
+  align-self: center;
+}
+
+.brand-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-top: 6px;
+}
+
+.nav-section {
+  padding: 0 12px;
+  margin-bottom: 24px;
+}
+
+.nav-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 0 12px 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: 4px;
+  color: var(--text-2);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 1px;
+}
+
+.nav-item:hover {
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: var(--bg-card);
+  color: var(--text);
+  border-left: 2px solid var(--hi);
+  padding-left: 10px;
+}
+
+.nav-item .badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.nav-item.active .badge { color: var(--hi); }
+
+/* ============ MAIN ============ */
+.main {
+  padding: 28px 36px 60px;
+  max-width: 1480px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.header-title {
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 144, 'SOFT' 30;
+  font-weight: 400;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.header-title em {
+  font-style: italic;
+  font-weight: 300;
+  color: var(--text-2);
+}
+
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.regime-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(111, 207, 151, 0.08);
+  border: 1px solid rgba(111, 207, 151, 0.3);
+  padding: 6px 12px;
+  border-radius: 100px;
+  color: var(--pos);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.regime-pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--pos);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--pos);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.live-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-dot::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  background: var(--text-2);
+  border-radius: 50%;
+}
+
+/* ============ COMPOSITE HERO ============ */
+.composite {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 28px;
+  margin-bottom: 48px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 32px 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+.composite::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--hi), transparent);
+  opacity: 0.4;
+}
+
+.composite-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 12px;
+}
+
+.composite-name {
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 144;
+  font-weight: 400;
+  font-size: 22px;
+  margin-bottom: 24px;
+  color: var(--text-2);
+  letter-spacing: -0.01em;
+}
+
+.composite-value {
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 144, 'SOFT' 100;
+  font-weight: 400;
+  font-size: 88px;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--pos);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.composite-value .sign {
+  font-size: 56px;
+  font-weight: 300;
+}
+
+.composite-meta {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.composite-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.composite-meta-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.composite-meta-value {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.composite-meta-value.pos { color: var(--pos); }
+.composite-meta-value.neg { color: var(--neg); }
+
+.composite-chart {
+  position: relative;
+}
+
+.composite-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+
+.composite-chart-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.timeframe-tabs {
+  display: flex;
+  gap: 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.timeframe-tab {
+  padding: 4px 10px;
+  color: var(--text-3);
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+}
+
+.timeframe-tab.active {
+  color: var(--hi);
+  border-bottom-color: var(--hi);
+}
+
+.composite-svg {
+  width: 100%;
+  height: 220px;
+}
+
+/* ============ TIERS ============ */
+.tier {
+  margin-bottom: 40px;
+}
+
+.tier-header {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.tier-numeral {
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 9;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 36px;
+  line-height: 1;
+  color: var(--text-3);
+  letter-spacing: -0.02em;
+}
+
+.tier-1 .tier-numeral { color: rgba(74, 143, 231, 0.6); }
+.tier-2 .tier-numeral { color: rgba(185, 122, 224, 0.6); }
+.tier-3 .tier-numeral { color: rgba(93, 211, 192, 0.6); }
+.tier-4 .tier-numeral { color: rgba(244, 201, 93, 0.6); }
+
+.tier-name {
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 144;
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+}
+
+.tier-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+}
+
+.tier-1 .tier-tag { color: var(--tier1); border-color: rgba(74, 143, 231, 0.3); }
+.tier-2 .tier-tag { color: var(--tier2); border-color: rgba(185, 122, 224, 0.3); }
+.tier-3 .tier-tag { color: var(--tier3); border-color: rgba(93, 211, 192, 0.3); }
+.tier-4 .tier-tag { color: var(--tier4); border-color: rgba(244, 201, 93, 0.3); }
+
+.tier-cadence {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-3);
+  margin-left: auto;
+  letter-spacing: 0.05em;
+}
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.metric {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px 18px 14px;
+  position: relative;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.metric:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(244, 201, 93, 0.3);
+}
+
+.metric-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.metric-name {
+  font-size: 12px;
+  color: var(--text-2);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.metric-source {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-3);
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+.metric-z {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.metric-z.pos { background: rgba(111, 207, 151, 0.12); color: var(--pos); }
+.metric-z.neg { background: rgba(199, 87, 75, 0.12); color: var(--neg); }
+.metric-z.neu { background: rgba(148, 139, 122, 0.1); color: var(--text-2); }
+
+.metric-value {
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 144;
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.metric-change {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-2);
+  margin-bottom: 12px;
+}
+
+.metric-change .delta { font-weight: 500; }
+.metric-change .delta.pos { color: var(--pos); }
+.metric-change .delta.neg { color: var(--neg); }
+
+.metric-spark {
+  width: 100%;
+  height: 38px;
+  display: block;
+}
+
+/* ============ VOTE INDICATOR ============ */
+.metric-vote {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-soft);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.vote-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.vote-chip.bull {
+  background: rgba(111, 207, 151, 0.12);
+  color: var(--pos);
+  border: 1px solid rgba(111, 207, 151, 0.28);
+}
+
+.vote-chip.bear {
+  background: rgba(199, 87, 75, 0.12);
+  color: var(--neg);
+  border: 1px solid rgba(199, 87, 75, 0.28);
+}
+
+.vote-chip.neutral {
+  background: rgba(148, 139, 122, 0.08);
+  color: var(--text-2);
+  border: 1px solid rgba(148, 139, 122, 0.22);
+}
+
+.vote-chip .arrow {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.vote-reason {
+  color: var(--text-3);
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 14;
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 400;
+  flex: 1;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+/* ============ TIER TALLY ============ */
+.tier-tally {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  margin-left: 14px;
+}
+
+.tally-segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.tally-segment.bull { background: rgba(111, 207, 151, 0.12); color: var(--pos); }
+.tally-segment.bear { background: rgba(199, 87, 75, 0.12); color: var(--neg); }
+.tally-segment.neutral { background: rgba(148, 139, 122, 0.08); color: var(--text-2); }
+
+.tally-segment .arrow { font-size: 10px; }
+
+/* Composite vote summary */
+.composite-vote {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.composite-vote-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+
+.composite-tally {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.composite-tally .tally-segment {
+  font-size: 11px;
+  padding: 4px 10px;
+}
+
+/* ============ WATCHLIST ============ */
+.watchlist-section {
+  margin-top: 48px;
+}
+
+.watchlist {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.watchlist-header {
+  display: grid;
+  grid-template-columns: 60px 1fr 80px 90px 90px 100px 1fr;
+  padding: 12px 20px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--bg-elev);
+}
+
+.watchlist-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 80px 90px 90px 100px 1fr;
+  padding: 14px 20px;
+  align-items: center;
+  border-bottom: 1px solid var(--border-soft);
+  transition: background 0.1s;
+  cursor: pointer;
+}
+
+.watchlist-row:last-child { border-bottom: none; }
+.watchlist-row:hover { background: var(--bg-card-hover); }
+
+.wl-ticker {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.wl-name {
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+.wl-name span {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-3);
+  margin-left: 8px;
+}
+
+.wl-price, .wl-target, .wl-pe {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+}
+
+.wl-status {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.wl-status.watching { color: var(--text-2); }
+.wl-status.starter { color: var(--warn); }
+.wl-status.building { color: var(--hi); }
+
+.wl-spark {
+  width: 100%;
+  height: 28px;
+}
+
+/* Footer */
+.footer {
+  margin-top: 60px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-3);
+  letter-spacing: 0.05em;
+}
+
+.mock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(224, 160, 46, 0.1);
+  border: 1px solid rgba(224, 160, 46, 0.3);
+  color: var(--warn);
+  border-radius: 3px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 144;
+  font-weight: 400;
+  font-size: 20px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+
+.section-title em {
+  font-style: italic;
+  color: var(--text-2);
+  font-weight: 300;
+}
+
+.aside-note {
+  background: var(--bg-elev);
+  border-left: 2px solid var(--hi);
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.6;
+  font-family: var(--serif);
+  font-variation-settings: 'opsz' 14;
+  font-style: italic;
+}
+
+.aside-note strong {
+  color: var(--hi);
+  font-style: normal;
+  font-weight: 600;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">TIDE</div>
+      <div class="brand-tag">Capital Pressure Obs.</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Dashboards</div>
+      <div class="nav-item active">
+        <span>Pressure Index</span>
+        <span class="badge">●</span>
+      </div>
+      <div class="nav-item"><span>Macro Liquidity</span><span class="badge">5</span></div>
+      <div class="nav-item"><span>Capital Flows</span><span class="badge">4</span></div>
+      <div class="nav-item"><span>Microstructure</span><span class="badge">5</span></div>
+      <div class="nav-item"><span>Positioning</span><span class="badge">5</span></div>
+      <div class="nav-item"><span>Macro Regime</span><span class="badge">3</span></div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Portfolio</div>
+      <div class="nav-item"><span>Watchlist</span><span class="badge">18</span></div>
+      <div class="nav-item"><span>Positions</span><span class="badge">7</span></div>
+      <div class="nav-item"><span>Theses</span><span class="badge">3</span></div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Research</div>
+      <div class="nav-item"><span>Sector Clusters</span></div>
+      <div class="nav-item"><span>Backtests</span></div>
+      <div class="nav-item"><span>Notebooks</span></div>
+      <div class="nav-item"><span>Annotations</span></div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">System</div>
+      <div class="nav-item"><span>Sources</span><span class="badge">12</span></div>
+      <div class="nav-item"><span>Logs</span></div>
+      <div class="nav-item"><span>Settings</span></div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <!-- Header -->
+    <header class="header">
+      <div>
+        <h1 class="header-title">Pressure Index <em>· composite read</em></h1>
+        <div style="font-family: var(--mono); font-size: 11px; color: var(--text-3); margin-top: 8px; letter-spacing: 0.05em;">
+          Synthesis of liquidity · flow · microstructure · positioning across 19 series
+        </div>
+      </div>
+      <div class="header-meta">
+        <span class="regime-pill">Risk-on · Expansionary</span>
+        <span class="live-dot">Live · 14:32 ET</span>
+        <span>Tue · May 5 · 2026</span>
+      </div>
+    </header>
+
+    <!-- ============ COMPOSITE HERO ============ -->
+    <section class="composite">
+      <div>
+        <div class="composite-label">Composite Reading</div>
+        <div class="composite-name">Capital pressure index</div>
+        <div class="composite-value"><span class="sign">+</span>0.74<span style="font-size: 28px; color: var(--text-3); font-family: var(--mono); margin-left: 12px; align-self: center;">σ</span></div>
+        <div class="composite-meta">
+          <div class="composite-meta-item">
+            <span class="composite-meta-label">13-week Δ</span>
+            <span class="composite-meta-value pos">+0.41</span>
+          </div>
+          <div class="composite-meta-item">
+            <span class="composite-meta-label">52-wk percentile</span>
+            <span class="composite-meta-value">82nd</span>
+          </div>
+          <div class="composite-meta-item">
+            <span class="composite-meta-label">Regime since</span>
+            <span class="composite-meta-value">Feb 11</span>
+          </div>
+        </div>
+        <div class="composite-vote">
+          <div class="composite-vote-label">Vote tally · 19 indicators</div>
+          <div class="composite-tally" id="compositeTally"></div>
+        </div>
+      </div>
+      <div class="composite-chart">
+        <div class="composite-chart-header">
+          <span class="composite-chart-title">Index history · 252 trading days</span>
+          <div class="timeframe-tabs">
+            <span class="timeframe-tab">1M</span>
+            <span class="timeframe-tab">3M</span>
+            <span class="timeframe-tab">6M</span>
+            <span class="timeframe-tab active">1Y</span>
+            <span class="timeframe-tab">5Y</span>
+          </div>
+        </div>
+        <svg class="composite-svg" viewBox="0 0 800 220" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gradPos" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#6FCF97" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#6FCF97" stop-opacity="0"/>
+            </linearGradient>
+            <pattern id="grid" width="80" height="44" patternUnits="userSpaceOnUse">
+              <path d="M 80 0 L 0 0 0 44" fill="none" stroke="#221F1A" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="800" height="220" fill="url(#grid)"/>
+          <line x1="0" y1="110" x2="800" y2="110" stroke="#2C2823" stroke-width="0.5" stroke-dasharray="3,4"/>
+          <text x="6" y="106" font-family="JetBrains Mono" font-size="9" fill="#5C544A">0.0σ</text>
+          <text x="6" y="62" font-family="JetBrains Mono" font-size="9" fill="#5C544A">+1.0σ</text>
+          <text x="6" y="160" font-family="JetBrains Mono" font-size="9" fill="#5C544A">−1.0σ</text>
+          <path id="compositePath" fill="url(#gradPos)" stroke="none"/>
+          <path id="compositeLine" fill="none" stroke="#6FCF97" stroke-width="1.6" stroke-linejoin="round"/>
+          <circle id="endDot" r="3.5" fill="#6FCF97"/>
+          <circle id="endHalo" r="8" fill="#6FCF97" opacity="0.3"/>
+          <text x="794" y="36" font-family="JetBrains Mono" font-size="10" fill="#6FCF97" text-anchor="end">+0.74σ</text>
+        </svg>
+      </div>
+    </section>
+
+    <div class="aside-note">
+      <strong>Read</strong>
+      15 of 19 indicators voting bull, 3 neutral, 1 bear. All four tiers cooperative — macro liquidity expanding, flows favoring equities, microstructure benign (tight spreads, deep books, calm Treasury vol), positioning stretched but not extreme. The dissenting bear (COT speculator positioning at +2σ) is contrarian-bearish for the short term but doesn't yet signal regime change. Watch for microstructure deterioration — widening HY spreads, MOVE rising, UVOL/DVOL flipping — as the leading indicator of stress migrating from sentiment up into capacity-to-transact.
+    </div>
+
+    <!-- ============ TIER I — MACRO LIQUIDITY ============ -->
+    <section class="tier tier-1">
+      <div class="tier-header">
+        <span class="tier-numeral">I</span>
+        <h2 class="tier-name">Macro Liquidity</h2>
+        <span class="tier-tag">The base · multi-year</span>
+        <span class="tier-tally" id="tally1"></span>
+        <span class="tier-cadence">5 series · monthly–weekly cadence</span>
+      </div>
+      <div class="tier-grid" id="tier1"></div>
+    </section>
+
+    <!-- ============ TIER II — CAPITAL FLOWS ============ -->
+    <section class="tier tier-2">
+      <div class="tier-header">
+        <span class="tier-numeral">II</span>
+        <h2 class="tier-name">Capital Flows</h2>
+        <span class="tier-tag">Capital direction · months</span>
+        <span class="tier-tally" id="tally2"></span>
+        <span class="tier-cadence">4 series · weekly–monthly cadence</span>
+      </div>
+      <div class="tier-grid" id="tier2"></div>
+    </section>
+
+    <!-- ============ TIER III — MARKET MICROSTRUCTURE ============ -->
+    <section class="tier tier-3">
+      <div class="tier-header">
+        <span class="tier-numeral">III</span>
+        <h2 class="tier-name">Market Microstructure</h2>
+        <span class="tier-tag">Capacity to transact · daily</span>
+        <span class="tier-tally" id="tally3"></span>
+        <span class="tier-cadence">5 series · realtime–daily cadence</span>
+      </div>
+      <div class="tier-grid" id="tier3"></div>
+    </section>
+
+    <!-- ============ TIER IV — SENTIMENT & POSITIONING ============ -->
+    <section class="tier tier-4">
+      <div class="tier-header">
+        <span class="tier-numeral">IV</span>
+        <h2 class="tier-name">Sentiment &amp; Positioning</h2>
+        <span class="tier-tag">Willingness to transact · days–weeks</span>
+        <span class="tier-tally" id="tally4"></span>
+        <span class="tier-cadence">5 series · daily cadence</span>
+      </div>
+      <div class="tier-grid" id="tier4"></div>
+    </section>
+
+    <!-- ============ WATCHLIST ============ -->
+    <section class="watchlist-section">
+      <h2 class="section-title">Watchlist <em>· healthcare de-rated quality</em></h2>
+      <div class="watchlist">
+        <div class="watchlist-header">
+          <div>Ticker</div>
+          <div>Company</div>
+          <div>Price</div>
+          <div>Target</div>
+          <div>Fwd P/E</div>
+          <div>Status</div>
+          <div>30D · relative to XLV</div>
+        </div>
+        <div id="watchlistRows"></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div>
+        <span class="mock-badge">⚠ Mockup data</span>
+        <span style="margin-left: 16px;">All values illustrative · not live · for design reference only</span>
+      </div>
+      <div>FRED · FINRA · Treasury TIC · Cboe · CFTC · ICI · last sync 14:32 ET</div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ============ Sparkline data generator ============
+function genSeries(n, trend, vol, seed) {
+  const out = [];
+  let v = 0;
+  let r = seed;
+  for (let i = 0; i < n; i++) {
+    r = (r * 9301 + 49297) % 233280;
+    const noise = ((r / 233280) - 0.5) * vol;
+    v = v + trend + noise;
+    out.push(v);
+  }
+  return out;
+}
+
+function pathFromData(data, w, h, pad) {
+  pad = pad || 2;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const dx = (w - pad * 2) / (data.length - 1);
+  return data.map((v, i) => {
+    const x = pad + i * dx;
+    const y = pad + (h - pad * 2) * (1 - (v - min) / range);
+    return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(' ');
+}
+
+function pathFilled(data, w, h, pad) {
+  pad = pad || 2;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const dx = (w - pad * 2) / (data.length - 1);
+  let p = '';
+  data.forEach((v, i) => {
+    const x = pad + i * dx;
+    const y = pad + (h - pad * 2) * (1 - (v - min) / range);
+    p += `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)} `;
+  });
+  p += `L ${w - pad} ${h - pad} L ${pad} ${h - pad} Z`;
+  return p;
+}
+
+// ============ Composite hero chart ============
+(function () {
+  const data = genSeries(252, 0.004, 0.18, 42);
+  const w = 800, h = 220, pad = 28;
+  const min = Math.min(...data), max = Math.max(...data);
+  const range = max - min;
+  const dx = (w - pad - 30) / (data.length - 1);
+  const path = data.map((v, i) => {
+    const x = pad + i * dx;
+    const y = 16 + (h - 32) * (1 - (v - min) / range);
+    return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(' ');
+  const fillPath = path + ` L ${pad + (data.length - 1) * dx} ${h - 16} L ${pad} ${h - 16} Z`;
+  document.getElementById('compositeLine').setAttribute('d', path);
+  document.getElementById('compositePath').setAttribute('d', fillPath);
+  // End dot
+  const lastX = pad + (data.length - 1) * dx;
+  const lastY = 16 + (h - 32) * (1 - (data[data.length - 1] - min) / range);
+  const endDot = document.getElementById('endDot');
+  const endHalo = document.getElementById('endHalo');
+  endDot.setAttribute('cx', lastX); endDot.setAttribute('cy', lastY);
+  endHalo.setAttribute('cx', lastX); endHalo.setAttribute('cy', lastY);
+})();
+
+// ============ Tier metric definitions ============
+const tier1Metrics = [
+  { name: 'M2 Money Supply', source: 'FRED · M2SL', value: '+4.2%', unit: 'YoY', delta: '+0.8pp 13W', deltaCls: 'pos', z: '+0.6σ', zCls: 'pos', trend: 0.06, vol: 0.4, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Reaccelerating from cycle low; expanding base liquidity' },
+  { name: 'Fed Balance Sheet', source: 'FRED · WALCL', value: '−2.1%', unit: 'YoY', delta: '+0.4pp 13W', deltaCls: 'pos', z: '−1.2σ', zCls: 'neu', trend: -0.02, vol: 0.6, color: '#948B7A',
+    vote: 'neutral', voteReason: 'Still contracting but rate of QT slowing' },
+  { name: 'HY Credit Spread', source: 'FRED · BAMLH0A0HYM2', value: '287', unit: 'bps · OAS', delta: '−42bps 13W', deltaCls: 'pos', z: '−1.4σ', zCls: 'pos', trend: -0.05, vol: 0.5, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Tight spreads = abundant credit, healthy risk appetite' },
+  { name: 'Chicago Fed NFCI', source: 'FRED · NFCI', value: '−0.42', unit: 'index · loose', delta: '−0.18 13W', deltaCls: 'pos', z: '−0.9σ', zCls: 'pos', trend: -0.03, vol: 0.3, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Financial conditions loose and easing further' },
+  { name: 'Bank Credit Total', source: 'FRED · TOTLL', value: '+3.8%', unit: 'YoY', delta: '+0.5pp 13W', deltaCls: 'pos', z: '+0.3σ', zCls: 'neu', trend: 0.04, vol: 0.3, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Net credit creation positive and accelerating' },
+];
+
+const tier2Metrics = [
+  { name: 'Margin Debt (FINRA)', source: 'FINRA · monthly', value: '+18.4%', unit: 'YoY', delta: '+5.1pp 13W', deltaCls: 'pos', z: '+1.6σ', zCls: 'pos', trend: 0.12, vol: 0.5, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Real new buying power; watch for late-cycle reversal at +2σ' },
+  { name: 'Foreign Equity Inflow', source: 'Treasury · TIC', value: '+$87B', unit: '3M cumulative', delta: '+$24B vs 6M avg', deltaCls: 'pos', z: '+1.1σ', zCls: 'pos', trend: 0.08, vol: 0.7, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Genuine new money entering US equity pool from abroad' },
+  { name: 'ICI Equity ETF Flows', source: 'ICI · weekly', value: '+$24.3B', unit: '4W rolling', delta: '+$9.1B 4W', deltaCls: 'pos', z: '+0.9σ', zCls: 'pos', trend: 0.07, vol: 0.9, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Tactical risk-on; ETF inflows dominating mutual fund outflows' },
+  { name: 'S&P Buyback Yield', source: 'S&P DJI · quarterly', value: '2.41%', unit: 'TTM', delta: '+0.18pp QoQ', deltaCls: 'pos', z: '+0.4σ', zCls: 'neu', trend: 0.03, vol: 0.3, color: '#948B7A',
+    vote: 'bull', voteReason: 'Structural net buyer of float; supports per-share metrics' },
+];
+
+const tier3Metrics = [
+  { name: 'MOVE Index', source: 'Cboe · Treasury vol', value: '92.4', unit: 'index · calm', delta: '−8.3 13W', deltaCls: 'pos', z: '−0.6σ', zCls: 'pos', trend: -0.04, vol: 0.7, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Calm Treasury vol = stable funding markets, no bond stress' },
+  { name: 'HYG Bid-Ask Spread', source: 'NYSE · 5D MA', value: '1.4', unit: 'bps · tight', delta: '−0.2bps 4W', deltaCls: 'pos', z: '−0.8σ', zCls: 'pos', trend: -0.03, vol: 0.5, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Tight HY ETF spreads = healthy credit market function' },
+  { name: 'UVOL/DVOL Ratio', source: 'NYSE · 5D MA', value: '1.34', unit: 'ratio · advancing', delta: '+0.18 5D', deltaCls: 'pos', z: '+0.7σ', zCls: 'pos', trend: 0.05, vol: 0.9, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Advancing volume dominates = broad participation' },
+  { name: 'Stock-Bond Correlation', source: '60D rolling', value: '−0.18', unit: 'correlation · diversifying', delta: '−0.06 4W', deltaCls: 'pos', z: '−0.2σ', zCls: 'neu', trend: -0.01, vol: 0.6, color: '#948B7A',
+    vote: 'neutral', voteReason: 'Mildly negative; diversification working but not strongly' },
+  { name: 'ES Top-of-Book Depth', source: 'CME · daily avg', value: '$58M', unit: 'avg · depth', delta: '+$11M 4W', deltaCls: 'pos', z: '+0.9σ', zCls: 'pos', trend: 0.06, vol: 0.7, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Deep books; size can be transacted without market impact' },
+];
+
+const tier4Metrics = [
+  { name: 'VIX Term Structure', source: 'Cboe · VIX/VIX3M', value: '0.78', unit: 'ratio · contango', delta: 'steep contango', deltaCls: 'pos', z: '−1.1σ', zCls: 'pos', trend: -0.02, vol: 1.2, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Steep contango = low fear, calm regime' },
+  { name: 'Put/Call Ratio', source: 'Cboe · 5D MA', value: '0.62', unit: 'equity-only', delta: '−0.08 5D', deltaCls: 'pos', z: '−0.7σ', zCls: 'pos', trend: -0.04, vol: 1.0, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Call buying dominates; risk-on flow signal' },
+  { name: 'Dealer Gamma (DIX)', source: 'SqueezeMetrics', value: '0.42', unit: 'long gamma', delta: '+0.04 wk', deltaCls: 'pos', z: '+0.5σ', zCls: 'pos', trend: 0.03, vol: 1.1, color: '#6FCF97',
+    vote: 'bull', voteReason: 'Dealers long gamma → vol dampened, dips bought' },
+  { name: 'AAII Bull/Bear', source: 'AAII · weekly', value: '+18', unit: 'spread · bullish', delta: '+6 wk', deltaCls: 'pos', z: '+0.9σ', zCls: 'neu', trend: 0.06, vol: 1.4, color: '#E0A02E',
+    vote: 'neutral', voteReason: 'Sentiment elevated but not at contrarian extreme yet' },
+  { name: 'COT S&P Spec Net', source: 'CFTC · weekly', value: '+24%', unit: 'OI · net long', delta: 'extreme long', deltaCls: 'neg', z: '+2.1σ', zCls: 'neg', trend: 0.09, vol: 0.8, color: '#C7574B',
+    vote: 'bear', voteReason: 'Extreme spec long positioning = contrarian bearish at +2σ' },
+];
+
+function voteSymbol(vote) {
+  if (vote === 'bull') return '↑';
+  if (vote === 'bear') return '↓';
+  return '—';
+}
+
+function voteLabel(vote) {
+  if (vote === 'bull') return 'Bull';
+  if (vote === 'bear') return 'Bear';
+  return 'Neutral';
+}
+
+function renderMetric(m, seed) {
+  const data = genSeries(60, m.trend, m.vol, seed);
+  const path = pathFromData(data, 200, 38, 2);
+  const fill = pathFilled(data, 200, 38, 2);
+  const fillId = `fill_${seed}`;
+  return `
+    <div class="metric">
+      <div class="metric-top">
+        <div>
+          <div class="metric-name">${m.name}</div>
+          <div class="metric-source">${m.source}</div>
+        </div>
+        <span class="metric-z ${m.zCls}">${m.z}</span>
+      </div>
+      <div class="metric-value">${m.value}</div>
+      <div class="metric-change">${m.unit} · <span class="delta ${m.deltaCls}">${m.delta}</span></div>
+      <svg class="metric-spark" viewBox="0 0 200 38" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="${fillId}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${m.color}" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="${m.color}" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="${fill}" fill="url(#${fillId})" stroke="none"/>
+        <path d="${path}" fill="none" stroke="${m.color}" stroke-width="1.3" stroke-linejoin="round"/>
+      </svg>
+      <div class="metric-vote">
+        <span class="vote-chip ${m.vote}">
+          <span class="arrow">${voteSymbol(m.vote)}</span>${voteLabel(m.vote)}
+        </span>
+        <span class="vote-reason">${m.voteReason}</span>
+      </div>
+    </div>
+  `;
+}
+
+function tallyMetrics(metrics) {
+  return metrics.reduce((acc, m) => { acc[m.vote]++; return acc; },
+    { bull: 0, bear: 0, neutral: 0 });
+}
+
+function renderTally(targetId, tally) {
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  el.innerHTML = `
+    <span class="tally-segment bull"><span class="arrow">↑</span>${tally.bull}</span>
+    <span class="tally-segment neutral"><span class="arrow">—</span>${tally.neutral}</span>
+    <span class="tally-segment bear"><span class="arrow">↓</span>${tally.bear}</span>
+  `;
+}
+
+function renderTier(id, metrics) {
+  const html = metrics.map((m, i) => renderMetric(m, i * 17 + id.length * 7)).join('');
+  document.getElementById(id).innerHTML = html;
+}
+
+renderTier('tier1', tier1Metrics);
+renderTier('tier2', tier2Metrics);
+renderTier('tier3', tier3Metrics);
+renderTier('tier4', tier4Metrics);
+
+// Tier-level tallies
+const t1 = tallyMetrics(tier1Metrics);
+const t2 = tallyMetrics(tier2Metrics);
+const t3 = tallyMetrics(tier3Metrics);
+const t4 = tallyMetrics(tier4Metrics);
+renderTally('tally1', t1);
+renderTally('tally2', t2);
+renderTally('tally3', t3);
+renderTally('tally4', t4);
+
+// Composite tally
+const composite = {
+  bull: t1.bull + t2.bull + t3.bull + t4.bull,
+  bear: t1.bear + t2.bear + t3.bear + t4.bear,
+  neutral: t1.neutral + t2.neutral + t3.neutral + t4.neutral,
+};
+const compositeEl = document.getElementById('compositeTally');
+if (compositeEl) {
+  compositeEl.innerHTML = `
+    <span class="tally-segment bull"><span class="arrow">↑</span>${composite.bull} bull</span>
+    <span class="tally-segment neutral"><span class="arrow">—</span>${composite.neutral} neutral</span>
+    <span class="tally-segment bear"><span class="arrow">↓</span>${composite.bear} bear</span>
+  `;
+}
+
+// ============ Watchlist ============
+const watchlist = [
+  { ticker: 'MRK', name: 'Merck & Co.', sub: 'Pharma', price: '113.42', target: '128', pe: '12.4×', status: 'starter', trend: 0.04, vol: 0.6, color: '#6FCF97' },
+  { ticker: 'UNH', name: 'UnitedHealth', sub: 'Managed Care', price: '342.18', target: '420', pe: '11.8×', status: 'building', trend: 0.06, vol: 0.9, color: '#6FCF97' },
+  { ticker: 'TMO', name: 'Thermo Fisher', sub: 'Life Sci Tools', price: '524.30', target: '630', pe: '21.6×', status: 'watching', trend: 0.05, vol: 0.5, color: '#6FCF97' },
+  { ticker: 'DHR', name: 'Danaher', sub: 'Life Sci Tools', price: '218.74', target: '275', pe: '24.2×', status: 'watching', trend: 0.04, vol: 0.6, color: '#6FCF97' },
+  { ticker: 'ABBV', name: 'AbbVie', sub: 'Pharma', price: '186.92', target: '215', pe: '14.3×', status: 'watching', trend: 0.03, vol: 0.4, color: '#948B7A' },
+  { ticker: 'GILD', name: 'Gilead Sciences', sub: 'Pharma', price: '92.41', target: '110', pe: '10.7×', status: 'starter', trend: 0.02, vol: 0.5, color: '#6FCF97' },
+  { ticker: 'NVO', name: 'Novo Nordisk', sub: 'Pharma · ADR', price: '64.18', target: '78', pe: '17.2×', status: 'watching', trend: -0.01, vol: 0.8, color: '#C7574B' },
+  { ticker: 'MDT', name: 'Medtronic', sub: 'Med Devices', price: '88.74', target: '105', pe: '15.1×', status: 'watching', trend: 0.02, vol: 0.4, color: '#948B7A' },
+];
+
+const wlHtml = watchlist.map((w, i) => {
+  const data = genSeries(30, w.trend, w.vol, i * 31 + 13);
+  const path = pathFromData(data, 200, 28, 2);
+  return `
+    <div class="watchlist-row">
+      <div class="wl-ticker">${w.ticker}</div>
+      <div class="wl-name">${w.name}<span>${w.sub}</span></div>
+      <div class="wl-price">$${w.price}</div>
+      <div class="wl-target">$${w.target}</div>
+      <div class="wl-pe">${w.pe}</div>
+      <div class="wl-status ${w.status}">${w.status}</div>
+      <svg class="wl-spark" viewBox="0 0 200 28" preserveAspectRatio="none">
+        <line x1="0" y1="14" x2="200" y2="14" stroke="#221F1A" stroke-width="0.5" stroke-dasharray="2,3"/>
+        <path d="${path}" fill="none" stroke="${w.color}" stroke-width="1.3" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  `;
+}).join('');
+document.getElementById('watchlistRows').innerHTML = wlHtml;
+</script>
+</body>
+</html>
