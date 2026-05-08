@@ -77,3 +77,20 @@ export interface Watchlist {
   rows: WatchlistRow[];
   benchmark: string;
 }
+
+export interface SourceRow {
+  metric_id: string;
+  name: string;
+  tier: number;
+  source: string;
+  source_kind: string;
+  cadence: string;
+  status: 'live' | 'stub';
+  last_observation: string | null;
+  last_ingested_at: string | null;
+  obs_count: number;
+}
+
+export interface SourcesPayload {
+  rows: SourceRow[];
+}
