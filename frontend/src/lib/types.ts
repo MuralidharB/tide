@@ -23,6 +23,7 @@ export interface Reading {
   as_of: string; // ISO date
   sparkline: number[];
   vote: Vote;
+  include_in_composite: boolean;
 }
 
 export interface Tier {

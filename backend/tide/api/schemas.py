@@ -26,6 +26,7 @@ class ReadingOut(BaseModel):
     as_of: date
     sparkline: list[float]
     vote: VoteOut
+    include_in_composite: bool = True
 
 
 class TierOut(BaseModel):

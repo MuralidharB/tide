@@ -19,7 +19,7 @@ from tide.api.schemas import (
 )
 from tide.compute.composite import composite_from_readings
 from tide.db import connect
-from tide.metrics import all_metrics, metrics_in_tier
+from tide.metrics import all_metrics, get_metric, metrics_in_tier
 from tide.metrics.base import Reading
 
 router = APIRouter()
@@ -48,6 +48,7 @@ def _reading_to_out(r: Reading) -> ReadingOut:
         as_of=r.as_of,
         sparkline=r.sparkline,
         vote=VoteOut(direction=r.vote.direction, reason=r.vote.reason),
+        include_in_composite=get_metric(r.metric_id).include_in_composite,
     )
 
 
