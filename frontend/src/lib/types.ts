@@ -95,3 +95,19 @@ export interface SourceRow {
 export interface SourcesPayload {
   rows: SourceRow[];
 }
+
+export interface SchedulerJob {
+  id: string;
+  label: string;
+  description: string;
+  schedule_repr: string;
+  last_run_at: string | null;
+  last_success_at: string | null;
+  last_error: string | null;
+  last_error_at: string | null;
+  next_run_at: string | null;
+}
+
+export interface SchedulerPayload {
+  jobs: SchedulerJob[];
+}

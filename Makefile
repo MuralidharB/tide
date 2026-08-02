@@ -1,4 +1,4 @@
-.PHONY: install install-backend install-frontend init-db ingest-m2 ingest-all dev-api dev-web
+.PHONY: install install-backend install-frontend init-db ingest-m2 ingest-all ingest-watchlist backfill-composite scheduler scheduler-once dev-api dev-web
 
 VENV ?= /home/murali/sandbox/envs/tideenv
 PY   := $(VENV)/bin/python
@@ -26,6 +26,12 @@ ingest-watchlist:
 
 backfill-composite:
 	cd backend && $(PY) -m tide.ingest.cli backfill-composite
+
+scheduler:
+	cd backend && $(PY) -m tide.ingest.cli scheduler
+
+scheduler-once:
+	cd backend && $(PY) -m tide.ingest.cli scheduler --fire-once
 
 dev-api:
 	cd backend && $(VENV)/bin/uvicorn tide.api.app:app --reload --port $(PORT)

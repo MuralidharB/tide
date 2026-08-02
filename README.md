@@ -65,7 +65,45 @@ make ingest-watchlist
 make backfill-composite # recomputes the historical composite from current data
 ```
 
-A future wave will wire APScheduler to run these on a cron-like schedule from a single long-running ingest process.
+### Automated: `make scheduler`
+
+For an always-fresh dashboard without manual runs, start the scheduler service:
+
+```bash
+make scheduler           # blocks; runs cron jobs until Ctrl-C
+# or, to test the job bodies once and exit:
+make scheduler-once
+```
+
+The scheduler runs two cron-triggered jobs (America/New_York timezone):
+
+- **`daily_ingest`** — Mon–Fri 17:00 (after US market close). Pulls every metric with `cadence="daily"`, refreshes the watchlist, and runs `backfill-composite`.
+- **`release_ingest`** — Fri 18:00. Pulls every non-daily metric (weekly / monthly / quarterly) — polling weekly on Fridays is cheap and catches new FRED / FINRA / Treasury / CFTC releases within a week — then runs `backfill-composite`.
+
+Per-job status (next run, last success, last error) persists to the `scheduler_status` DuckDB table and is surfaced on the **Sources page** (`/sources`).
+
+To keep the scheduler running across reboots, drop it under systemd. Minimal unit:
+
+```ini
+# /etc/systemd/system/tide-scheduler.service
+[Unit]
+Description=TIDE ingestion scheduler
+After=network.target
+
+[Service]
+Type=simple
+User=murali
+WorkingDirectory=/home/murali/sandbox/tide
+ExecStart=/home/murali/sandbox/envs/tideenv/bin/python -m tide.ingest.cli scheduler
+Restart=on-failure
+RestartSec=30s
+Environment="PYTHONUNBUFFERED=1"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then `sudo systemctl enable --now tide-scheduler`. `journalctl -u tide-scheduler -f` tails the logs.
 
 ## Layout
 

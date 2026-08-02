@@ -17,6 +17,18 @@
     return `${days} days ago`;
   }
 
+  function fmtTs(iso: string | null): string {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  }
+
   function ageClass(iso: string | null, cadence: string): string {
     const days = daysSince(iso);
     if (days == null) return 'neu';
@@ -31,6 +43,12 @@
   $: rows = data.sources?.rows ?? [];
   $: liveCount = rows.filter((r) => r.status === 'live').length;
   $: stubCount = rows.filter((r) => r.status === 'stub').length;
+  $: schedulerJobs = data.scheduler?.jobs ?? [];
+  // A live scheduler populates next_run_at; fire-once alone does not. last_run_at
+  // presence tells you the job has fired at least once (either mode).
+  $: schedulerRunning = schedulerJobs.some((j) => j.next_run_at != null);
+  $: schedulerFiredEver = schedulerJobs.some((j) => j.last_run_at != null);
+
 </script>
 
 <header class="header">
@@ -48,6 +66,47 @@
     {data.error}
   </div>
 {:else}
+  <section class="scheduler-section">
+    <h2 class="section-title">
+      Scheduler <em>· {schedulerRunning ? 'running' : schedulerFiredEver ? 'idle · fire-once only' : 'not started'}</em>
+    </h2>
+    <div class="watchlist">
+      <div class="jobs-header">
+        <div>Job</div>
+        <div>Schedule</div>
+        <div>Last run</div>
+        <div>Last success</div>
+        <div>Next run</div>
+        <div>Last error</div>
+      </div>
+      {#each schedulerJobs as job (job.id)}
+        <div class="jobs-row">
+          <div>
+            <div class="src-name">{job.label}</div>
+            <div class="src-mid">{job.id}</div>
+          </div>
+          <div class="src-cadence">{job.schedule_repr}</div>
+          <div class="src-age">{fmtTs(job.last_run_at)}</div>
+          <div class="src-age {job.last_success_at ? 'pos' : 'neu'}">{fmtTs(job.last_success_at)}</div>
+          <div class="src-age">{fmtTs(job.next_run_at)}</div>
+          <div class="src-error {job.last_error ? 'neg' : 'neu'}" title={job.last_error ?? ''}>
+            {#if job.last_error}
+              {job.last_error.split('\n')[0].slice(0, 60)}
+            {:else}
+              —
+            {/if}
+          </div>
+        </div>
+      {/each}
+    </div>
+    {#if !schedulerRunning}
+      <div style="margin-top: 12px; font-family: var(--mono); font-size: 10px; color: var(--text-3); letter-spacing: 0.05em;">
+        Start with <code>make scheduler</code> or run one batch manually via <code>make scheduler-once</code>.
+      </div>
+    {/if}
+  </section>
+
+  <h2 class="section-title" style="margin-top: 32px;">Metric sources <em>· {liveCount} live · {stubCount} stubbed</em></h2>
   <div class="watchlist">
     <div class="sources-header">
       <div>Metric</div>
@@ -159,4 +218,38 @@
     color: var(--text-2);
     border: 1px solid rgba(148, 139, 122, 0.22);
   }
+  .scheduler-section { margin-bottom: 32px; }
+  .jobs-header {
+    display: grid;
+    grid-template-columns: 1.4fr 1.6fr 1.2fr 1.2fr 1.2fr 2fr;
+    padding: 12px 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--bg-elev);
+  }
+  .jobs-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1.6fr 1.2fr 1.2fr 1.2fr 2fr;
+    padding: 12px 20px;
+    align-items: center;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 12px;
+  }
+  .jobs-row:last-child { border-bottom: none; }
+  .src-error {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: help;
+  }
+  .src-error.pos { color: var(--pos); }
+  .src-error.neg { color: var(--neg); }
+  .src-error.neu { color: var(--text-3); }
 </style>

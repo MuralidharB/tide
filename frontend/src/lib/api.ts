@@ -1,5 +1,5 @@
 import { env } from '$env/dynamic/private';
-import type { Dashboard, SourcesPayload, Watchlist } from './types';
+import type { Dashboard, SchedulerPayload, SourcesPayload, Watchlist } from './types';
 
 // SvelteKit loads .env via Vite (envDir: '..' in vite.config.ts). $env/dynamic/private
 // reads non-VITE-prefixed vars at request time, server-side only.
@@ -21,5 +21,11 @@ export async function fetchWatchlist(fetch: typeof globalThis.fetch): Promise<Wa
 export async function fetchSources(fetch: typeof globalThis.fetch): Promise<SourcesPayload> {
   const res = await fetch(`${API_URL}/api/sources`);
   if (!res.ok) throw new Error(`Sources fetch failed: ${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchScheduler(fetch: typeof globalThis.fetch): Promise<SchedulerPayload> {
+  const res = await fetch(`${API_URL}/api/scheduler`);
+  if (!res.ok) throw new Error(`Scheduler fetch failed: ${res.status} ${res.statusText}`);
   return res.json();
 }
