@@ -40,6 +40,18 @@ CREATE TABLE IF NOT EXISTS observations (
     PRIMARY KEY (metric_id, ts)
 );
 
+-- Scheduler telemetry — one row per APScheduler job. Populated by tide/scheduler/
+-- so the Sources page can surface next-run / last-run / last-error without needing
+-- an IPC channel to the scheduler process.
+CREATE TABLE IF NOT EXISTS scheduler_status (
+    job_id           VARCHAR PRIMARY KEY,
+    last_run_at      TIMESTAMP,
+    last_success_at  TIMESTAMP,
+    last_error       VARCHAR,
+    last_error_at    TIMESTAMP,
+    next_run_at      TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_observations_metric_ts ON observations(metric_id, ts DESC);
 """
 

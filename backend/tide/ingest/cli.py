@@ -1,7 +1,10 @@
 """tide-ingest CLI — runs metric ingest jobs out-of-process from the API."""
 from __future__ import annotations
 
+import logging
+import signal
 import sys
+import time
 
 import click
 
@@ -95,6 +98,53 @@ def run_cmd(metric_ids: tuple[str, ...], run_all: bool) -> None:
                 [(m.id, ts, val) for ts, val in rows],
             )
             click.echo(f"  [ok]   {m.id}: {len(rows)} obs ({rows[0][0]} → {rows[-1][0]})")
+
+
+@main.command("scheduler")
+@click.option(
+    "--fire-once",
+    is_flag=True,
+    help="Run each scheduled job body once, sequentially, then exit. For smoke tests.",
+)
+def scheduler_cmd(fire_once: bool) -> None:
+    """Start the long-running APScheduler service (cadence-grouped cron jobs).
+
+    Runs until SIGINT / SIGTERM. Job status persists to the scheduler_status table
+    so the Sources page can display next-run / last-success / last-error without
+    an IPC channel to this process.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)-5s %(name)s: %(message)s",
+    )
+    from tide.scheduler import JOBS, fire_once as _fire_once, start_scheduler
+
+    if fire_once:
+        click.echo("  [scheduler] --fire-once: running each job body sequentially")
+        _fire_once()
+        click.echo("  [scheduler] --fire-once: done")
+        return
+
+    sched = start_scheduler()
+    sched.start()
+    click.echo("  [scheduler] started")
+    for job in JOBS:
+        click.echo(f"  [scheduler] {job['id']:20s} {job['schedule_repr']}")
+
+    stop = {"flag": False}
+
+    def _handle_signal(signum, frame):  # noqa: ANN001
+        click.echo(f"\n  [scheduler] received signal {signum}, shutting down…")
+        stop["flag"] = True
+
+    signal.signal(signal.SIGINT, _handle_signal)
+    signal.signal(signal.SIGTERM, _handle_signal)
+
+    while not stop["flag"]:
+        time.sleep(1)
+
+    sched.shutdown(wait=True)
+    click.echo("  [scheduler] stopped")
 
 
 if __name__ == "__main__":
