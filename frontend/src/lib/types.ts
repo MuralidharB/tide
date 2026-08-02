@@ -113,3 +113,30 @@ export interface SchedulerJob {
 export interface SchedulerPayload {
   jobs: SchedulerJob[];
 }
+
+export interface DetailPoint {
+  ts: string;
+  indicator: number;
+  z: number | null;
+}
+
+export interface MetricDetail {
+  metric_id: string;
+  name: string;
+  tier: number;
+  source: string;
+  source_kind: string;
+  source_series: string | null;
+  unit: string;
+  cadence: string;
+  description: string | null;
+  direction_kind: 'natural' | 'inverted' | 'contrarian_long';
+  indicator_kind: 'level' | 'yoy';
+  indicator_window: number;
+  indicator_lag: number;
+  zscore_years: number;
+  include_in_composite: boolean;
+  reading: Reading | null;
+  series: DetailPoint[];
+  obs_count: number;
+}

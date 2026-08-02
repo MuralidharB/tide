@@ -23,14 +23,14 @@
   });
 </script>
 
-<div class="metric">
+<a class="metric metric-link" href="/metric/{reading.metric_id}">
   <div class="metric-top">
     <div>
       <div class="metric-name">
         {reading.name}
         {#if reading.description}
           <span class="info-wrap">
-            <span class="info-icon" aria-label="What is this metric?" tabindex="0" role="button">ⓘ</span>
+            <span class="info-icon" aria-hidden="true">ⓘ</span>
             <span class="info-tooltip" role="tooltip">
               <span class="info-title">{reading.name}</span>
               <span class="info-body">{reading.description}</span>
@@ -58,4 +58,12 @@
     </span>
     <span class="vote-reason">{reading.vote.reason}</span>
   </div>
-</div>
+</a>
+
+<style>
+  .metric-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+</style>

@@ -73,3 +73,30 @@ class HistoryPoint(BaseModel):
 class HistoryOut(BaseModel):
     metric_id: str
     points: list[HistoryPoint]
+
+
+class DetailPoint(BaseModel):
+    ts: date
+    indicator: float
+    z: float | None
+
+
+class MetricDetailOut(BaseModel):
+    metric_id: str
+    name: str
+    tier: int
+    source: str
+    source_kind: str
+    source_series: str | None
+    unit: str
+    cadence: str
+    description: str | None
+    direction_kind: str
+    indicator_kind: str
+    indicator_window: int
+    indicator_lag: int
+    zscore_years: int
+    include_in_composite: bool
+    reading: ReadingOut | None
+    series: list[DetailPoint]
+    obs_count: int
