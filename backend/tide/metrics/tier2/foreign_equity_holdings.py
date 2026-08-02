@@ -88,6 +88,13 @@ register(MetricDefinition(
     indicator_lag=12,
     indicator_window=36,
     direction_kind="natural",
+    description=(
+        "The total dollar value of US stocks held by foreign investors, from Treasury TIC "
+        "reports. Growing faster than the market itself means foreigners are net buyers — "
+        "real capital inflow into US equities. Shrinking or lagging = they're pulling money "
+        "out. Note: Treasury's free file caps at 2023 — this reading is stale by design "
+        "and shown with an as-of date."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

@@ -104,6 +104,13 @@ register(MetricDefinition(
     indicator_window=756,
     direction_kind="inverted",
     include_in_composite=False,
+    description=(
+        "Estimated leverage of vol-targeting and risk-parity funds, implied by trailing "
+        "realized volatility. These funds mechanically SIZE UP when vol is low and SIZE DOWN "
+        "when vol spikes — so calm markets quietly load a spring. High values = fragility: "
+        "if vol shocks, forced selling accelerates any move. Held out of the composite "
+        "because it's a LOADEDNESS gauge, not a direction signal."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

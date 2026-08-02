@@ -78,6 +78,12 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=756,
     direction_kind="inverted",
+    description=(
+        "A \"VIX for bonds\" — measures how volatile Treasury bond prices are expected to "
+        "be over the next month, based on options pricing. Low MOVE means the bond market "
+        "is calm, funding costs are stable, no signs of stress. Spikes in MOVE (bond stress) "
+        "often bleed into equities within days or weeks. Low is bullish."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

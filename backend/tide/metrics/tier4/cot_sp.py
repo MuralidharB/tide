@@ -104,6 +104,13 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=156,
     direction_kind="contrarian_long",
+    description=(
+        "Net position of leveraged-money speculators (hedge funds, CTAs) in S&P 500 e-mini "
+        "futures, published weekly by the CFTC. Expressed as % of total open interest. Read "
+        "contrarianly: when speculators are extremely net long, the trade is crowded and any "
+        "reversal forces them to sell — bearish. Extreme net short = crowded bear positioning, "
+        "vulnerable to a short squeeze — bullish."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

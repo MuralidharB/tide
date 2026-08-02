@@ -83,6 +83,13 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=756,
     direction_kind="inverted",
+    description=(
+        "A proxy for how easy it is to move size in the S&P 500 ETF (SPY) without moving "
+        "the price. Computed from daily price move ÷ dollar volume traded. Low = deep, "
+        "healthy liquidity (big trades absorbed without impact). High = fragile market where "
+        "small trades move prices a lot. Substitutes for the ES futures top-of-book depth "
+        "shown in the mockup (real depth data isn't free)."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

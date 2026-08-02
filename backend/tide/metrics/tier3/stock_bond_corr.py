@@ -82,6 +82,13 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=756,
     direction_kind="inverted",
+    description=(
+        "The 60-day rolling correlation between S&P 500 (SPY) and long-term Treasury (TLT) "
+        "daily returns. Historically negative — when stocks fell, bonds rose, so a 60/40 "
+        "portfolio was diversified. When correlation turns positive, stocks and bonds fall "
+        "together (as happened in 2022) and diversification breaks down. Negative correlation "
+        "is bullish for risk-taking; positive is bearish."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

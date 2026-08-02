@@ -33,6 +33,7 @@ TIER_META = {
 
 
 def _reading_to_out(r: Reading) -> ReadingOut:
+    m = get_metric(r.metric_id)
     return ReadingOut(
         metric_id=r.metric_id,
         name=r.name,
@@ -48,7 +49,8 @@ def _reading_to_out(r: Reading) -> ReadingOut:
         as_of=r.as_of,
         sparkline=r.sparkline,
         vote=VoteOut(direction=r.vote.direction, reason=r.vote.reason),
-        include_in_composite=get_metric(r.metric_id).include_in_composite,
+        include_in_composite=m.include_in_composite,
+        description=m.description,
     )
 
 

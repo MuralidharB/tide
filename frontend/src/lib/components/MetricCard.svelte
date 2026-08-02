@@ -26,7 +26,18 @@
 <div class="metric">
   <div class="metric-top">
     <div>
-      <div class="metric-name">{reading.name}</div>
+      <div class="metric-name">
+        {reading.name}
+        {#if reading.description}
+          <span class="info-wrap">
+            <span class="info-icon" aria-label="What is this metric?" tabindex="0" role="button">ⓘ</span>
+            <span class="info-tooltip" role="tooltip">
+              <span class="info-title">{reading.name}</span>
+              <span class="info-body">{reading.description}</span>
+            </span>
+          </span>
+        {/if}
+      </div>
       <div class="metric-source">{reading.source} · as of {asOf}</div>
       {#if !reading.include_in_composite}
         <div class="loadedness-chip" title="Loadedness gauge — held out of the directional composite">

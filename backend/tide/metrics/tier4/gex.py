@@ -76,6 +76,13 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=756,
     direction_kind="natural",
+    description=(
+        "Total dollar gamma held by options market-makers, in $ per 1% index move. When "
+        "dealers are net LONG gamma (positive/high GEX), they hedge by selling rallies and "
+        "buying dips — this DAMPENS volatility and props up the market. When they're SHORT "
+        "gamma (negative), they hedge in the same direction as the market — ACCELERATING "
+        "moves. High GEX is bullish (stable regime); negative is fragile."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

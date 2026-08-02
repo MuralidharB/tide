@@ -79,6 +79,12 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=156,
     direction_kind="inverted",
+    description=(
+        "A single number the Chicago Fed publishes weekly summarizing whether US financial "
+        "conditions overall — interest rates, credit availability, market volatility — are "
+        "loose or tight. Negative values mean loose (easy to borrow, calm markets); positive "
+        "means tight (funding stress). Loose financial conditions are bullish for risk assets."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

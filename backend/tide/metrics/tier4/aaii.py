@@ -84,6 +84,13 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=156,
     direction_kind="contrarian_long",
+    description=(
+        "A weekly survey the American Association of Individual Investors sends to its retail "
+        "members: \"Bullish, Neutral, or Bearish for the next 6 months?\" Shown as the spread "
+        "(bullish % minus bearish %). Read contrarianly: extreme bullishness (everyone's "
+        "already long, no one left to buy) is a warning; extreme bearishness (retail "
+        "capitulation) often marks bottoms. Mid-range readings carry little signal."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

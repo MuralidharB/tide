@@ -27,6 +27,7 @@ class ReadingOut(BaseModel):
     sparkline: list[float]
     vote: VoteOut
     include_in_composite: bool = True
+    description: str | None = None
 
 
 class TierOut(BaseModel):

@@ -83,6 +83,13 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=756,
     direction_kind="inverted",
+    description=(
+        "Same illiquidity measure applied to the high-yield bond ETF (HYG). When this rises, "
+        "the credit market is having trouble absorbing flow — often an early warning sign "
+        "of credit stress that eventually shows up in equity prices too. Low = healthy "
+        "credit market function. Substitutes for HYG bid-ask spread from the mockup "
+        "(intraday spread data isn't free)."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

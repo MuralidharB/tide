@@ -76,6 +76,12 @@ register(MetricDefinition(
     indicator_lag=52,
     indicator_window=156,
     direction_kind="natural",
+    description=(
+        "The total dollar amount of loans on the books of US commercial banks. Rising = "
+        "banks are actually lending (real credit creation, driving economic activity). "
+        "Falling or stagnant = banks pulling back, credit contracting. Shown as year-over-"
+        "year growth; positive z-score = credit expanding faster than trend, bullish."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

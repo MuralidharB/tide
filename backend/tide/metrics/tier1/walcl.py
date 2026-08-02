@@ -76,6 +76,12 @@ register(MetricDefinition(
     indicator_lag=52,
     indicator_window=156,
     direction_kind="natural",
+    description=(
+        "The size of the Federal Reserve's balance sheet — how many trillions of Treasury "
+        "bonds and mortgage-backed securities the Fed owns. When the Fed buys bonds (QE), "
+        "the balance sheet grows and injects liquidity into markets. When it lets bonds roll "
+        "off (QT), liquidity drains. Positive z-score = expanding = supportive of asset prices."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

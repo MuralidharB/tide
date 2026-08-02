@@ -24,6 +24,7 @@ export interface Reading {
   sparkline: number[];
   vote: Vote;
   include_in_composite: boolean;
+  description: string | null;
 }
 
 export interface Tier {

@@ -87,6 +87,12 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=756,
     direction_kind="inverted",
+    description=(
+        "The ratio of near-term VIX (30-day expected volatility) to 3-month VIX. When under "
+        "1.0 (\"contango\"), markets expect the near term to be calmer than the medium term "
+        "— the normal, complacent regime. When over 1.0 (\"backwardation\"), immediate fear "
+        "dominates — usually a crisis signature. Low ratio (contango) is bullish."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

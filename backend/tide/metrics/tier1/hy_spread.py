@@ -87,6 +87,13 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=252,
     direction_kind="inverted",
+    description=(
+        "The extra yield that risky (\"junk\") corporate bonds pay above safe Treasury "
+        "bonds. When this spread is tight, investors are relaxed about credit risk — money "
+        "flows easily and companies can borrow cheaply, which is a bullish regime. Widening "
+        "spreads signal credit stress. Note: the raw z-score is negative when spreads are "
+        "tight (bullish); the card is colored to reflect that."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

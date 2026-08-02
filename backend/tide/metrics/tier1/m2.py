@@ -77,6 +77,13 @@ register(MetricDefinition(
     indicator_lag=12,
     indicator_window=36,
     direction_kind="natural",
+    description=(
+        "The total pool of dollars in checking, savings, and money-market accounts across "
+        "the US economy. When M2 grows faster than average, more cash is available to chase "
+        "assets — historically supportive of stock and bond prices. Shown as % change vs "
+        "the same month last year; positive z-score means growing faster than the 3-year "
+        "average, which is bullish for risk assets."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

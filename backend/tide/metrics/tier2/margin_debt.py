@@ -87,6 +87,13 @@ register(MetricDefinition(
     indicator_lag=4,
     indicator_window=12,
     direction_kind="natural",  # contrarian-flip past +1.5σ is handled in compute_fn
+    description=(
+        "How much money US investors have borrowed against their brokerage accounts to buy "
+        "stocks. Growing = investors are bullish and leveraging up (real new buying power). "
+        "But at extreme highs (well above trend), it becomes a late-cycle warning: excess "
+        "leverage historically precedes market corrections because forced selling accelerates "
+        "any downturn. Quarterly data with a ~2-month publication lag."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))

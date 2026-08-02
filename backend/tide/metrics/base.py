@@ -64,6 +64,11 @@ class MetricDefinition:
     ingest_fn: Optional[IngestFn] = None
     compute_fn: Optional[ComputeFn] = None
 
+    # Plain-language description shown on the card's info-icon hover. Aim for 1–3
+    # sentences answering: (1) what it measures, (2) why it matters, (3) how to
+    # read the sign. Written for someone who is not a finance professional.
+    description: Optional[str] = None
+
     # Metadata used by composite_history to compute directional z per date without
     # re-running compute_fn for every historical date. compute_fn is unchanged.
     indicator_kind: IndicatorKind = "level"

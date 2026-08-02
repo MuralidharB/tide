@@ -75,6 +75,12 @@ register(MetricDefinition(
     indicator_kind="level",
     indicator_window=756,
     direction_kind="natural",
+    description=(
+        "The share of NYSE volume that happens in \"dark pools\" (private venues) which is "
+        "flagged as buying. High DIX means institutions are quietly accumulating shares "
+        "off-exchange without moving the price — bullish. Low DIX means they're distributing "
+        "(selling into liquidity) — bearish. Published daily by SqueezeMetrics."
+    ),
     ingest_fn=_ingest,
     compute_fn=_compute,
 ))
