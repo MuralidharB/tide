@@ -47,7 +47,12 @@ def composite_history(
     holidays, publication lag) inherit the prior reading. Returns only dates where
     at least one tier has at least one metric reading.
     """
-    metrics = [m for m in all_metrics() if m.compute_fn is not None]
+    # Skip loadedness metrics (include_in_composite=False) — they belong on tier cards
+    # but not in the directional composite history.
+    metrics = [
+        m for m in all_metrics()
+        if m.compute_fn is not None and m.include_in_composite
+    ]
 
     # Pull each metric's full directional-z history once.
     per_metric: dict[str, list[tuple[date, float]]] = {}

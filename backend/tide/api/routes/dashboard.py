@@ -54,6 +54,7 @@ def _reading_to_out(r: Reading) -> ReadingOut:
 @router.get("/dashboard", response_model=DashboardOut)
 def get_dashboard() -> DashboardOut:
     readings: list[Reading] = []
+    composite_readings: list[Reading] = []
     with connect(read_only=True) as conn:
         for m in all_metrics():
             if m.compute_fn is None:
@@ -61,8 +62,12 @@ def get_dashboard() -> DashboardOut:
             r = m.compute_fn(conn)
             if r is not None:
                 readings.append(r)
+                if m.include_in_composite:
+                    composite_readings.append(r)
 
-    composite = composite_from_readings(readings)
+    # Loadedness/fragility gauges (include_in_composite=False) render as tier cards
+    # but do NOT enter the directional composite average or tally.
+    composite = composite_from_readings(composite_readings)
     composite_out: CompositeOut | None = None
     if composite is not None:
         composite_out = CompositeOut(

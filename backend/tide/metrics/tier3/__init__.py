@@ -6,6 +6,11 @@ Implemented in Wave 3:
   - amihud_hyg       — Amihud illiquidity on HYG (substitute for HYG bid-ask spread)
   - stock_bond_corr  — 60D rolling Pearson on SPY/TLT daily returns
 
+Later:
+  - systematic_leverage — Vol-target implied leverage from ^IXIC 20D realized vol.
+                          LOADEDNESS gauge (include_in_composite=False) — renders
+                          on the tier grid but held out of the directional composite.
+
 Stubbed (registered with metadata, no ingest_fn yet):
   - uvol_dvol        — NYSE up-volume / down-volume ratio. Yahoo doesn't carry the
                        direct tickers (^UVOL/^DVOL/^NYAD/^ADVL all return 'no result'),
@@ -15,5 +20,11 @@ Stubbed (registered with metadata, no ingest_fn yet):
                        (pull every member's daily volume + classify advancing/declining
                        — heavy but fully under our control).
 """
-from tide.metrics.tier3 import amihud_hyg, amihud_spy, move, stock_bond_corr  # noqa: F401
+from tide.metrics.tier3 import (  # noqa: F401
+    amihud_hyg,
+    amihud_spy,
+    move,
+    stock_bond_corr,
+    systematic_leverage,
+)
 

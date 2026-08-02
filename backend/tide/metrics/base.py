@@ -71,6 +71,12 @@ class MetricDefinition:
     indicator_window: int = 36
     direction_kind: DirectionKind = "natural"
 
+    # Whether this metric contributes to the directional composite. Loadedness /
+    # fragility gauges (systematic_leverage etc.) render as tier cards but must NOT
+    # pollute the bull/bear composite — encoding "loaded spring" on a directional
+    # axis would be a category error. Tier cards and tally still show these readings.
+    include_in_composite: bool = True
+
 
 def directional_from_z(z: float, kind: DirectionKind) -> float:
     """Map a raw z-score to a bull-positive directional z, per metric convention."""

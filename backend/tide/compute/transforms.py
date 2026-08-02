@@ -84,3 +84,30 @@ def daily_returns(closes: list[tuple[date, float]]) -> list[tuple[date, float]]:
             continue
         out.append((d, c / prev - 1))
     return out
+
+
+def realized_vol(
+    closes: list[tuple[date, float]],
+    window: int = 20,
+    annualization: int = 252,
+) -> list[tuple[date, float]]:
+    """Rolling annualized realized volatility of simple daily returns.
+
+    Standard deviation is taken over `window` daily returns and scaled by
+    sqrt(annualization) to express as annualized vol (0.10 = 10% annual).
+    Output has one observation per date once the window has filled.
+    """
+    rets = daily_returns(closes)
+    if len(rets) < window:
+        return []
+    out: list[tuple[date, float]] = []
+    scale = annualization ** 0.5
+    for i in range(window - 1, len(rets)):
+        days = rets[i - window + 1 : i + 1]
+        xs = [r for _, r in days]
+        n = len(xs)
+        m = sum(xs) / n
+        var = sum((x - m) ** 2 for x in xs) / (n - 1)
+        sd = var ** 0.5
+        out.append((rets[i][0], sd * scale))
+    return out
