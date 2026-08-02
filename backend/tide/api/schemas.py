@@ -55,6 +55,7 @@ class CompositeOut(BaseModel):
 class CompositeHistoryPoint(BaseModel):
     ts: date
     z: float
+    spy_close: float | None = None
 
 
 class DashboardOut(BaseModel):

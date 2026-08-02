@@ -98,12 +98,20 @@ def get_dashboard() -> DashboardOut:
         ))
 
     # Composite history is precomputed by `tide-ingest backfill-composite` and stored
-    # under series id `_composite_z`. We just SELECT it here.
+    # under series id `_composite_z`. SPY closes on the same dates come from `_spy_close`
+    # (refreshed by the same backfill) so the frontend can overlay the S&P 500.
     history_rows: list[CompositeHistoryPoint] = []
     with connect(read_only=True) as conn:
-        for ts, val in conn.execute(
-            "SELECT ts, value FROM observations WHERE metric_id = '_composite_z' ORDER BY ts"
+        for ts, z, spy in conn.execute(
+            """
+            SELECT c.ts, c.value AS z, s.value AS spy_close
+            FROM observations c
+            LEFT JOIN observations s
+              ON s.metric_id = '_spy_close' AND s.ts = c.ts
+            WHERE c.metric_id = '_composite_z'
+            ORDER BY c.ts
+            """
         ).fetchall():
-            history_rows.append(CompositeHistoryPoint(ts=ts, z=val))
+            history_rows.append(CompositeHistoryPoint(ts=ts, z=z, spy_close=spy))
 
     return DashboardOut(composite=composite_out, tiers=tiers, composite_history=history_rows)

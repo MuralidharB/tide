@@ -52,6 +52,7 @@ export interface Composite {
 export interface CompositeHistoryPoint {
   ts: string;
   z: number;
+  spy_close: number | null;
 }
 
 export interface Dashboard {

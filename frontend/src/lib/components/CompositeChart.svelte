@@ -6,14 +6,15 @@
   const W = 800;
   const H = 220;
   const padX = 28;
-  const padRight = 30;      // reserve room for the terminal-value label
+  const padRight = 30;
   const padTop = 16;
   const padBottom = 16;
 
   const zMin = -2;
   const zMax = 2;
 
-  const TICK_COUNT = 6;     // date labels along the x-axis
+  const TICK_COUNT = 6;
+  const SPY_COLOR = '#5DD3C0';   // muted teal, from --tier3 palette
 
   $: hasData = history.length >= 2;
 
@@ -25,13 +26,42 @@
     if (history.length <= 1) return padX;
     return padX + ((W - padX - padRight) * i) / (history.length - 1);
   }
-
   function xPctFor(i: number): number {
-    // Container-local percent (0..100). Since the SVG uses preserveAspectRatio="none"
-    // and stretches to container width, viewBox-x/W is the same fraction as pixel-x/width.
     return (xFor(i) / W) * 100;
   }
 
+  // ── SPY overlay: percent change from first visible close ────────────────
+  $: spyBase = (() => {
+    if (!hasData) return null;
+    const first = history.find((p) => p.spy_close != null);
+    return first ? first.spy_close : null;
+  })();
+
+  $: spyPcts = (() => {
+    if (!hasData || spyBase == null) return [];
+    return history.map((p) =>
+      p.spy_close != null ? (p.spy_close / spyBase - 1) * 100 : null
+    );
+  })();
+
+  // Dynamic right-axis range: symmetric around 0, rounded up to nearest 5%.
+  $: spyPctBound = (() => {
+    if (spyPcts.length === 0) return 0;
+    const nonNull = spyPcts.filter((v): v is number => v != null);
+    if (nonNull.length === 0) return 0;
+    const m = Math.max(Math.abs(Math.min(...nonNull)), Math.abs(Math.max(...nonNull)));
+    if (m === 0) return 5;
+    const rounded = Math.ceil(m / 5) * 5;
+    return Math.min(rounded, 80); // cap for sanity
+  })();
+
+  function yForSpyPct(pct: number): number {
+    if (spyPctBound === 0) return H / 2;
+    const clamped = Math.max(-spyPctBound, Math.min(spyPctBound, pct));
+    return padTop + (H - padTop - padBottom) * (1 - (clamped + spyPctBound) / (2 * spyPctBound));
+  }
+
+  // ── Composite paths ─────────────────────────────────────────────────────
   $: linePath = (() => {
     if (!hasData) return '';
     return history
@@ -46,13 +76,34 @@
     return linePath + ` L ${lastX.toFixed(1)} ${baseY.toFixed(1)} L ${padX} ${baseY.toFixed(1)} Z`;
   })();
 
+  // ── SPY path — thin line, no fill, skip missing ─────────────────────────
+  $: spyPath = (() => {
+    if (!hasData || spyBase == null || spyPctBound === 0) return '';
+    const cmds: string[] = [];
+    let started = false;
+    for (let i = 0; i < history.length; i++) {
+      const pct = spyPcts[i];
+      if (pct == null) {
+        started = false;
+        continue;
+      }
+      const x = xFor(i).toFixed(1);
+      const y = yForSpyPct(pct).toFixed(1);
+      cmds.push(`${started ? 'L' : 'M'} ${x} ${y}`);
+      started = true;
+    }
+    return cmds.join(' ');
+  })();
+
   $: latest = hasData ? history[history.length - 1] : null;
   $: latestX = latest ? xFor(history.length - 1) : 0;
   $: latestY = latest ? yFor(latest.z) : 0;
   $: latestColor =
     latest == null ? 'var(--text-2)' : latest.z >= 0 ? 'var(--pos)' : 'var(--neg)';
 
-  // ── x-axis timeline labels ──────────────────────────────────────────────
+  $: latestSpyPct = spyPcts.length > 0 ? spyPcts[spyPcts.length - 1] : null;
+
+  // ── Timeline ────────────────────────────────────────────────────────────
   function fmtTick(iso: string, spanMonths: number): string {
     const d = new Date(iso);
     if (spanMonths >= 12) {
@@ -74,16 +125,12 @@
     const out: { idx: number; label: string; pct: number }[] = [];
     for (let k = 0; k < TICK_COUNT; k++) {
       const idx = Math.round((k * (n - 1)) / (TICK_COUNT - 1));
-      out.push({
-        idx,
-        label: fmtTick(history[idx].ts, spanMonths),
-        pct: xPctFor(idx),
-      });
+      out.push({ idx, label: fmtTick(history[idx].ts, spanMonths), pct: xPctFor(idx) });
     }
     return out;
   })();
 
-  // ── hover popover ───────────────────────────────────────────────────────
+  // ── Hover ───────────────────────────────────────────────────────────────
   let container: HTMLDivElement | null = null;
   let hoverIdx: number | null = null;
 
@@ -91,26 +138,22 @@
     if (!container || !hasData) return;
     const rect = container.getBoundingClientRect();
     const x = e.clientX - rect.left;
-    const w = rect.width;
-    // Convert container-local pixel x → viewBox-x (0..W)
-    const svgX = (x / w) * W;
-    // Invert xFor: idx = (svgX - padX) / step
+    const svgX = (x / rect.width) * W;
     const step = (W - padX - padRight) / Math.max(1, history.length - 1);
     const raw = (svgX - padX) / step;
-    const idx = Math.max(0, Math.min(history.length - 1, Math.round(raw)));
-    hoverIdx = idx;
+    hoverIdx = Math.max(0, Math.min(history.length - 1, Math.round(raw)));
   }
-
   function onMouseLeave() {
     hoverIdx = null;
   }
 
   $: hover = hoverIdx != null && hasData ? history[hoverIdx] : null;
-  $: hoverX = hoverIdx != null ? xFor(hoverIdx) : 0;
-  $: hoverY = hover ? yFor(hover.z) : 0;
   $: hoverPct = hoverIdx != null ? xPctFor(hoverIdx) : 0;
   $: hoverYPct = hover ? (yFor(hover.z) / H) * 100 : 0;
-  $: hoverColor = hover == null ? 'var(--text-2)' : hover.z >= 0 ? 'var(--pos)' : 'var(--neg)';
+  $: hoverSpyPct = hoverIdx != null ? spyPcts[hoverIdx] : null;
+  $: hoverSpyYPct =
+    hoverIdx != null && hoverSpyPct != null ? (yForSpyPct(hoverSpyPct) / H) * 100 : null;
+  $: hoverX = hoverIdx != null ? xFor(hoverIdx) : 0;
   $: hoverSignClass = hover == null ? 'neu' : hover.z >= 0 ? 'pos' : 'neg';
   $: hoverDateFmt = hover
     ? new Date(hover.ts).toLocaleDateString('en-US', {
@@ -120,14 +163,33 @@
         year: 'numeric',
       })
     : '';
-  // Keep the tooltip inside the container by shifting it left near the right edge.
   $: tooltipAlign = hoverPct > 82 ? 'right' : hoverPct < 12 ? 'left' : 'center';
 </script>
 
 <div class="composite-chart">
   <div class="composite-chart-header">
     <span class="composite-chart-title">Index history · {history.length} business days</span>
+    <span class="chart-legend">
+      <span class="legend-item">
+        <span class="legend-dot" style="background: {latestColor}"></span>
+        <span class="legend-label">Composite</span>
+      </span>
+      {#if spyBase != null}
+        <span class="legend-item">
+          <span class="legend-dot" style="background: {SPY_COLOR}"></span>
+          <span class="legend-label">
+            S&amp;P 500
+            {#if latestSpyPct != null}
+              <span class="legend-sub">
+                {latestSpyPct >= 0 ? '+' : ''}{latestSpyPct.toFixed(1)}%
+              </span>
+            {/if}
+          </span>
+        </span>
+      {/if}
+    </span>
   </div>
+
   <div
     class="chart-container"
     bind:this={container}
@@ -149,28 +211,42 @@
       <line x1="0" y1={yFor(0)} x2={W} y2={yFor(0)} stroke="#2C2823" stroke-width="0.5" stroke-dasharray="3,4" />
       <line x1="0" y1={yFor(1)} x2={W} y2={yFor(1)} stroke="#2C2823" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.6" />
       <line x1="0" y1={yFor(-1)} x2={W} y2={yFor(-1)} stroke="#2C2823" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.6" />
+
+      <!-- Left y-axis (σ) labels -->
       <text x="6" y={yFor(0) - 4} font-family="JetBrains Mono" font-size="9" fill="#5C544A">0.0σ</text>
       <text x="6" y={yFor(1) - 4} font-family="JetBrains Mono" font-size="9" fill="#5C544A">+1.0σ</text>
       <text x="6" y={yFor(-1) + 12} font-family="JetBrains Mono" font-size="9" fill="#5C544A">−1.0σ</text>
+
+      <!-- Right y-axis (SPY %) labels -->
+      {#if spyBase != null && spyPctBound > 0}
+        <text x={W - 6} y={yForSpyPct(spyPctBound) - 4} font-family="JetBrains Mono" font-size="9" fill={SPY_COLOR} opacity="0.7" text-anchor="end">
+          +{spyPctBound}%
+        </text>
+        <text x={W - 6} y={yForSpyPct(0) - 4} font-family="JetBrains Mono" font-size="9" fill={SPY_COLOR} opacity="0.7" text-anchor="end">
+          0%
+        </text>
+        <text x={W - 6} y={yForSpyPct(-spyPctBound) + 12} font-family="JetBrains Mono" font-size="9" fill={SPY_COLOR} opacity="0.7" text-anchor="end">
+          −{spyPctBound}%
+        </text>
+      {/if}
+
       {#if hasData}
+        <!-- Composite fill + line -->
         <path d={fillPath} fill="url(#gradComposite)" stroke="none" />
         <path d={linePath} fill="none" stroke={latestColor} stroke-width="1.6" stroke-linejoin="round" />
         <circle cx={latestX} cy={latestY} r="3.5" fill={latestColor} />
         <circle cx={latestX} cy={latestY} r="8" fill={latestColor} opacity="0.3" />
-        <text x={W - 6} y="36" font-family="JetBrains Mono" font-size="10" fill={latestColor} text-anchor="end">
-          {latest && latest.z >= 0 ? '+' : ''}{latest?.z.toFixed(2)}σ
-        </text>
 
+        <!-- SPY overlay line -->
+        {#if spyPath}
+          <path d={spyPath} fill="none" stroke={SPY_COLOR} stroke-width="1.2" stroke-linejoin="round" opacity="0.75" />
+        {/if}
+
+        <!-- Hover guide -->
         {#if hoverIdx != null && hover}
           <line
-            x1={hoverX}
-            x2={hoverX}
-            y1={padTop}
-            y2={H - padBottom}
-            stroke="var(--text-2)"
-            stroke-width="0.7"
-            stroke-dasharray="2,3"
-            opacity="0.5"
+            x1={hoverX} x2={hoverX} y1={padTop} y2={H - padBottom}
+            stroke="var(--text-2)" stroke-width="0.7" stroke-dasharray="2,3" opacity="0.5"
           />
         {/if}
       {:else}
@@ -181,18 +257,31 @@
     </svg>
 
     {#if hasData && hoverIdx != null && hover}
-      <div
-        class="hover-dot {hoverSignClass}"
-        style="left: {hoverPct}%; top: {hoverYPct}%;"
-      ></div>
-      <div
-        class="chart-tooltip align-{tooltipAlign}"
-        style="left: {hoverPct}%;"
-      >
+      <div class="hover-dot {hoverSignClass}" style="left: {hoverPct}%; top: {hoverYPct}%;"></div>
+      {#if hoverSpyYPct != null}
+        <div class="hover-dot spy" style="left: {hoverPct}%; top: {hoverSpyYPct}%;"></div>
+      {/if}
+      <div class="chart-tooltip align-{tooltipAlign}" style="left: {hoverPct}%;">
         <div class="tt-date">{hoverDateFmt}</div>
-        <div class="tt-z {hoverSignClass}">
-          {hover.z >= 0 ? '+' : ''}{hover.z.toFixed(2)}σ
+        <div class="tt-row">
+          <span class="tt-swatch" style="background: {latestColor}"></span>
+          <span class="tt-label">Composite</span>
+          <span class="tt-val {hoverSignClass}">
+            {hover.z >= 0 ? '+' : ''}{hover.z.toFixed(2)}σ
+          </span>
         </div>
+        {#if hover.spy_close != null && hoverSpyPct != null}
+          <div class="tt-row">
+            <span class="tt-swatch" style="background: {SPY_COLOR}"></span>
+            <span class="tt-label">S&amp;P 500</span>
+            <span class="tt-val spy">
+              ${hover.spy_close.toFixed(2)}
+              <span class="tt-sub">
+                {hoverSpyPct >= 0 ? '+' : ''}{hoverSpyPct.toFixed(1)}%
+              </span>
+            </span>
+          </div>
+        {/if}
       </div>
     {/if}
   </div>
@@ -212,6 +301,7 @@
     justify-content: space-between;
     align-items: baseline;
     margin-bottom: 16px;
+    gap: 20px;
   }
   .composite-chart-title {
     font-family: var(--mono);
@@ -219,6 +309,30 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-3);
+  }
+  .chart-legend {
+    display: inline-flex;
+    gap: 18px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--text-2);
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .legend-label { color: var(--text-2); }
+  .legend-sub {
+    color: var(--text-3);
+    margin-left: 6px;
   }
   .chart-container {
     position: relative;
@@ -258,6 +372,7 @@
   .hover-dot.pos { background: var(--pos); }
   .hover-dot.neg { background: var(--neg); }
   .hover-dot.neu { background: var(--text-2); }
+  .hover-dot.spy { background: #5DD3C0; opacity: 0.9; }
   .chart-tooltip {
     position: absolute;
     top: -6px;
@@ -265,7 +380,7 @@
     background: var(--bg-elev);
     border: 1px solid var(--border);
     border-radius: 3px;
-    padding: 6px 10px;
+    padding: 8px 12px;
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.04em;
@@ -275,6 +390,7 @@
     pointer-events: none;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
     z-index: 2;
+    min-width: 180px;
   }
   .chart-tooltip.align-left  { transform: translateX(0); }
   .chart-tooltip.align-right { transform: translateX(-100%); }
@@ -283,15 +399,41 @@
     font-size: 9px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    margin-bottom: 6px;
   }
-  .tt-z {
+  .tt-row {
+    display: grid;
+    grid-template-columns: 10px auto 1fr;
+    align-items: baseline;
+    gap: 8px;
+    padding: 2px 0;
+  }
+  .tt-swatch {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .tt-label {
+    color: var(--text-2);
+    font-size: 10px;
+  }
+  .tt-val {
+    text-align: right;
     font-family: var(--serif);
     font-variation-settings: 'opsz' 144;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
+  }
+  .tt-val.pos { color: var(--pos); }
+  .tt-val.neg { color: var(--neg); }
+  .tt-val.neu { color: var(--text-2); }
+  .tt-val.spy { color: #5DD3C0; }
+  .tt-sub {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-3);
     margin-top: 2px;
   }
-  .tt-z.pos { color: var(--pos); }
-  .tt-z.neg { color: var(--neg); }
-  .tt-z.neu { color: var(--text-2); }
 </style>

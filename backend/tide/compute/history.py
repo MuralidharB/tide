@@ -104,7 +104,12 @@ def composite_history(
 
 
 def write_composite_history(conn: duckdb.DuckDBPyConnection, days_back: int = 252) -> int:
-    """Compute composite history and persist under observation series '_composite_z'."""
+    """Compute composite history and persist under observation series '_composite_z'.
+
+    Also refreshes the SPY reference series (`_spy_close`) used to overlay the S&P 500
+    on the composite chart. SPY fetch failures are logged and swallowed — the composite
+    chart still renders without SPY, just without the overlay.
+    """
     series = composite_history(conn, days_back=days_back)
     if not series:
         return 0
@@ -114,4 +119,24 @@ def write_composite_history(conn: duckdb.DuckDBPyConnection, days_back: int = 25
         "INSERT INTO observations (metric_id, ts, value) VALUES ('_composite_z', ?, ?)",
         series,
     )
+    _refresh_spy_reference(conn)
     return len(series)
+
+
+def _refresh_spy_reference(conn: duckdb.DuckDBPyConnection) -> int:
+    """Store SPY closes as observations under `_spy_close` for the composite chart overlay."""
+    from tide.ingest.sources.yahoo import fetch_close_series
+    try:
+        closes = fetch_close_series("SPY", start="2020-01-01")
+    except Exception:  # noqa: BLE001
+        # Don't fail the whole backfill for a missing overlay. logging module isn't
+        # configured in the CLI path; the API layer will show a chart without SPY.
+        return 0
+    if not closes:
+        return 0
+    conn.execute("DELETE FROM observations WHERE metric_id = '_spy_close'")
+    conn.executemany(
+        "INSERT INTO observations (metric_id, ts, value) VALUES ('_spy_close', ?, ?)",
+        closes,
+    )
+    return len(closes)
