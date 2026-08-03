@@ -57,6 +57,22 @@ class CompositeHistoryPoint(BaseModel):
     ts: date
     z: float
     spy_close: float | None = None
+    # Per-tier averages that produced this composite z. JSON object keys must be
+    # strings, so tiers are keyed by "1".."4"; the frontend re-maps to ints.
+    tier_zs: dict[str, float] = {}
+
+
+class TierHistoryPoint(BaseModel):
+    ts: date
+    z: float
+
+
+class TierHistoryOut(BaseModel):
+    tier: int
+    name: str
+    tag: str
+    points: list[TierHistoryPoint]
+    latest_z: float | None
 
 
 class DashboardOut(BaseModel):

@@ -100,20 +100,34 @@ def get_dashboard() -> DashboardOut:
         ))
 
     # Composite history is precomputed by `tide-ingest backfill-composite` and stored
-    # under series id `_composite_z`. SPY closes on the same dates come from `_spy_close`
-    # (refreshed by the same backfill) so the frontend can overlay the S&P 500.
+    # under series id `_composite_z`. Per-tier averages come from `_tier_z_1..4` (same
+    # backfill). SPY closes on matching dates come from `_spy_close`.
     history_rows: list[CompositeHistoryPoint] = []
     with connect(read_only=True) as conn:
-        for ts, z, spy in conn.execute(
+        rows = conn.execute(
             """
-            SELECT c.ts, c.value AS z, s.value AS spy_close
+            SELECT c.ts, c.value AS z, s.value AS spy_close,
+                   t1.value AS t1, t2.value AS t2, t3.value AS t3, t4.value AS t4
             FROM observations c
-            LEFT JOIN observations s
-              ON s.metric_id = '_spy_close' AND s.ts = c.ts
+            LEFT JOIN observations s  ON s.metric_id  = '_spy_close' AND s.ts  = c.ts
+            LEFT JOIN observations t1 ON t1.metric_id = '_tier_z_1'  AND t1.ts = c.ts
+            LEFT JOIN observations t2 ON t2.metric_id = '_tier_z_2'  AND t2.ts = c.ts
+            LEFT JOIN observations t3 ON t3.metric_id = '_tier_z_3'  AND t3.ts = c.ts
+            LEFT JOIN observations t4 ON t4.metric_id = '_tier_z_4'  AND t4.ts = c.ts
             WHERE c.metric_id = '_composite_z'
             ORDER BY c.ts
             """
-        ).fetchall():
-            history_rows.append(CompositeHistoryPoint(ts=ts, z=z, spy_close=spy))
+        ).fetchall()
+        for ts, z, spy, t1, t2, t3, t4 in rows:
+            tier_zs = {}
+            if t1 is not None:
+                tier_zs["1"] = t1
+            if t2 is not None:
+                tier_zs["2"] = t2
+            if t3 is not None:
+                tier_zs["3"] = t3
+            if t4 is not None:
+                tier_zs["4"] = t4
+            history_rows.append(CompositeHistoryPoint(ts=ts, z=z, spy_close=spy, tier_zs=tier_zs))
 
     return DashboardOut(composite=composite_out, tiers=tiers, composite_history=history_rows)

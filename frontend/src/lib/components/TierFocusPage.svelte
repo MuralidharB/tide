@@ -1,11 +1,13 @@
 <script lang="ts">
-  import type { Dashboard, Tier } from '$lib/types';
+  import type { Dashboard, Tier, TierHistory } from '$lib/types';
   import TierGrid from './TierGrid.svelte';
+  import TierHistoryChart from './TierHistoryChart.svelte';
 
   export let dashboard: Dashboard | null;
   export let tierNumber: 1 | 2 | 3 | 4;
   export let pageTitle: string;
   export let subtitle: string;
+  export let history: TierHistory | null = null;
 
   const ROMAN = ['', 'I', 'II', 'III', 'IV'];
 
@@ -40,6 +42,10 @@
     </span>
   </div>
 </header>
+
+{#if history && history.points.length > 0}
+  <TierHistoryChart history={history.points} {tierNumber} tierName={history.name} />
+{/if}
 
 {#if tier}
   <TierGrid {tier} />

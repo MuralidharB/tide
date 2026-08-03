@@ -9,4 +9,5 @@
   tierNumber={1}
   pageTitle="Macro Liquidity"
   subtitle="the base · multi-year"
+  history={data.history}
 />

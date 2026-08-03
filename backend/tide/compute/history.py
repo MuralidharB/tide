@@ -6,11 +6,15 @@ day in the requested window, forward-fills the latest available directional_z
 per metric, groups by tier, averages per tier, then averages the four tier
 averages into the composite z.
 
-Stored in observations under series_id `_composite_z`.
+Stored in observations under series_id `_composite_z`, with per-tier averages
+persisted alongside as `_tier_z_1`, `_tier_z_2`, `_tier_z_3`, `_tier_z_4` so the
+tier subpages can chart their own regime history and the hero can display a
+per-tier decomposition of the current composite.
 """
 from __future__ import annotations
 
 import bisect
+from dataclasses import dataclass
 from datetime import date, timedelta
 from statistics import mean
 
@@ -19,6 +23,14 @@ import duckdb
 from tide.compute.zscore import level_series, yoy_series
 from tide.metrics import all_metrics
 from tide.metrics.base import MetricDefinition, directional_from_z
+
+
+@dataclass(frozen=True)
+class HistoryPoint:
+    """One business day of composite computation: date, composite z, per-tier averages."""
+    ts: date
+    composite_z: float
+    tier_zs: dict[int, float]
 
 
 def _historical_directional_z(
@@ -40,8 +52,8 @@ def _historical_directional_z(
 def composite_history(
     conn: duckdb.DuckDBPyConnection,
     days_back: int = 252,
-) -> list[tuple[date, float]]:
-    """Compute (date, composite_z) for each weekday in the last `days_back` days.
+) -> list[HistoryPoint]:
+    """Compute (date, composite_z, per-tier averages) for each weekday in the last `days_back` days.
 
     Forward-fills each metric's last known directional_z so missing days (weekends,
     holidays, publication lag) inherit the prior reading. Returns only dates where
@@ -66,17 +78,13 @@ def composite_history(
     if not per_metric:
         return []
 
-    # For binary search, we need each metric's date list.
     sorted_dates: dict[str, list[date]] = {
         mid: [s[0] for s in series] for mid, series in per_metric.items()
     }
-
-    # Determine the date range. End at the latest reading we have; start days_back
-    # business days before that (approximated by 1.5 * days_back calendar days).
     latest_date = max(s[-1][0] for s in per_metric.values())
     start_date = latest_date - timedelta(days=int(days_back * 1.5))
 
-    out: list[tuple[date, float]] = []
+    out: list[HistoryPoint] = []
     cursor = start_date
     while cursor <= latest_date:
         if cursor.weekday() >= 5:
@@ -86,17 +94,16 @@ def composite_history(
         by_tier: dict[int, list[float]] = {}
         for mid, series in per_metric.items():
             dates = sorted_dates[mid]
-            # bisect_right gives the insertion index — the last value with ts <= cursor
-            # is at index (idx - 1).
             idx = bisect.bisect_right(dates, cursor)
             if idx == 0:
-                continue  # no reading yet for this metric at cursor
+                continue
             _, dz = series[idx - 1]
             by_tier.setdefault(metric_tier[mid], []).append(dz)
 
         if by_tier:
-            tier_avgs = [mean(vs) for vs in by_tier.values()]
-            out.append((cursor, mean(tier_avgs)))
+            tier_zs = {tier: mean(vs) for tier, vs in by_tier.items()}
+            composite_z = mean(tier_zs.values())
+            out.append(HistoryPoint(ts=cursor, composite_z=composite_z, tier_zs=tier_zs))
 
         cursor += timedelta(days=1)
 
@@ -104,21 +111,35 @@ def composite_history(
 
 
 def write_composite_history(conn: duckdb.DuckDBPyConnection, days_back: int = 252) -> int:
-    """Compute composite history and persist under observation series '_composite_z'.
+    """Compute composite history and persist derived series in observations.
 
-    Also refreshes the SPY reference series (`_spy_close`) used to overlay the S&P 500
-    on the composite chart. SPY fetch failures are logged and swallowed — the composite
-    chart still renders without SPY, just without the overlay.
+    Persists:
+      - `_composite_z`  : the composite z per business day
+      - `_tier_z_1..4`  : per-tier averages per business day
+      - `_spy_close`    : SPY reference series for chart overlay (best-effort)
+
+    Returns the number of composite points written.
     """
     series = composite_history(conn, days_back=days_back)
     if not series:
         return 0
-    # Replace the entire stored series each run — it's a derived view, not raw data.
+
+    # Replace the entire derived-series set each run — these are computed views.
     conn.execute("DELETE FROM observations WHERE metric_id = '_composite_z'")
     conn.executemany(
         "INSERT INTO observations (metric_id, ts, value) VALUES ('_composite_z', ?, ?)",
-        series,
+        [(p.ts, p.composite_z) for p in series],
     )
+
+    for tier in (1, 2, 3, 4):
+        conn.execute(f"DELETE FROM observations WHERE metric_id = '_tier_z_{tier}'")
+        rows = [(p.ts, p.tier_zs[tier]) for p in series if tier in p.tier_zs]
+        if rows:
+            conn.executemany(
+                f"INSERT INTO observations (metric_id, ts, value) VALUES ('_tier_z_{tier}', ?, ?)",
+                rows,
+            )
+
     _refresh_spy_reference(conn)
     return len(series)
 

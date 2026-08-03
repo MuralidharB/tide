@@ -9,4 +9,5 @@
   tierNumber={3}
   pageTitle="Market Microstructure"
   subtitle="capacity to transact · daily"
+  history={data.history}
 />

@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from tide.api.routes import dashboard, health, metrics, scheduler, sources, watchlist
+from tide.api.routes import dashboard, health, metrics, scheduler, sources, tiers, watchlist
 
 app = FastAPI(title="TIDE API", version="0.1.0")
 
@@ -22,4 +22,5 @@ app.include_router(dashboard.router, prefix="/api")
 app.include_router(metrics.router, prefix="/api")
 app.include_router(scheduler.router, prefix="/api")
 app.include_router(sources.router, prefix="/api")
+app.include_router(tiers.router, prefix="/api")
 app.include_router(watchlist.router, prefix="/api")

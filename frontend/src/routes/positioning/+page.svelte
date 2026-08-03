@@ -9,4 +9,5 @@
   tierNumber={4}
   pageTitle="Sentiment & Positioning"
   subtitle="willingness to transact · days–weeks"
+  history={data.history}
 />

@@ -1,5 +1,5 @@
 import { env } from '$env/dynamic/private';
-import type { Dashboard, MetricDetail, SchedulerPayload, SourcesPayload, Watchlist } from './types';
+import type { Dashboard, MetricDetail, SchedulerPayload, SourcesPayload, TierHistory, Watchlist } from './types';
 
 // SvelteKit loads .env via Vite (envDir: '..' in vite.config.ts). $env/dynamic/private
 // reads non-VITE-prefixed vars at request time, server-side only.
@@ -36,5 +36,14 @@ export async function fetchMetricDetail(
 ): Promise<MetricDetail> {
   const res = await fetch(`${API_URL}/api/metrics/${encodeURIComponent(id)}/detail`);
   if (!res.ok) throw new Error(`Metric ${id} fetch failed: ${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchTierHistory(
+  fetch: typeof globalThis.fetch,
+  tier: number
+): Promise<TierHistory> {
+  const res = await fetch(`${API_URL}/api/tier/${tier}/history`);
+  if (!res.ok) throw new Error(`Tier ${tier} history fetch failed: ${res.status} ${res.statusText}`);
   return res.json();
 }

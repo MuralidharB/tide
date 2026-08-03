@@ -282,6 +282,22 @@
             </span>
           </div>
         {/if}
+        {#if hover.tier_zs && Object.keys(hover.tier_zs).length > 0}
+          <div class="tt-divider"></div>
+          {#each [1, 2, 3, 4] as tier}
+            {@const tv = hover.tier_zs[String(tier)]}
+            {#if tv != null}
+              {@const tColor = tier === 1 ? '#4A8FE7' : tier === 2 ? '#B97AE0' : tier === 3 ? '#5DD3C0' : '#F4C95D'}
+              <div class="tt-row tt-tier">
+                <span class="tt-swatch" style="background: {tColor}; opacity: 0.7"></span>
+                <span class="tt-label tt-tier-label">Tier {['','I','II','III','IV'][tier]}</span>
+                <span class="tt-val tt-tier-val" style="color: {tColor}; opacity: 0.9">
+                  {tv >= 0 ? '+' : ''}{tv.toFixed(2)}σ
+                </span>
+              </div>
+            {/if}
+          {/each}
+        {/if}
       </div>
     {/if}
   </div>
@@ -407,6 +423,20 @@
     align-items: baseline;
     gap: 8px;
     padding: 2px 0;
+  }
+  .tt-divider {
+    height: 1px;
+    background: var(--border-soft);
+    margin: 6px 0 2px;
+  }
+  .tt-row.tt-tier {
+    padding: 1px 0;
+  }
+  .tt-tier-label { font-size: 9px; }
+  .tt-tier-val {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
   }
   .tt-swatch {
     width: 8px;

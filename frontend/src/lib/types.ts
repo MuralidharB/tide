@@ -54,6 +54,21 @@ export interface CompositeHistoryPoint {
   ts: string;
   z: number;
   spy_close: number | null;
+  /** Per-tier averages that produced this composite z. Keys are "1".."4". */
+  tier_zs: Record<string, number>;
+}
+
+export interface TierHistoryPoint {
+  ts: string;
+  z: number;
+}
+
+export interface TierHistory {
+  tier: number;
+  name: string;
+  tag: string;
+  points: TierHistoryPoint[];
+  latest_z: number | null;
 }
 
 export interface Dashboard {

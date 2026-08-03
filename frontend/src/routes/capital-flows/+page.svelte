@@ -9,4 +9,5 @@
   tierNumber={2}
   pageTitle="Capital Flows"
   subtitle="capital direction · months"
+  history={data.history}
 />
