@@ -179,34 +179,34 @@
       <line
         x1={padX} x2={W - padRight}
         y1={yFor(mean + sigma)} y2={yFor(mean + sigma)}
-        stroke="#3E3931" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.7"
+        stroke="#B5AC94" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.7"
       />
       <line
         x1={padX} x2={W - padRight}
         y1={yFor(mean - sigma)} y2={yFor(mean - sigma)}
-        stroke="#3E3931" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.7"
+        stroke="#B5AC94" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.7"
       />
       <line
         x1={padX} x2={W - padRight}
         y1={yFor(mean + 2 * sigma)} y2={yFor(mean + 2 * sigma)}
-        stroke="#3E3931" stroke-width="0.4" stroke-dasharray="1,6" opacity="0.4"
+        stroke="#B5AC94" stroke-width="0.4" stroke-dasharray="1,6" opacity="0.4"
       />
       <line
         x1={padX} x2={W - padRight}
         y1={yFor(mean - 2 * sigma)} y2={yFor(mean - 2 * sigma)}
-        stroke="#3E3931" stroke-width="0.4" stroke-dasharray="1,6" opacity="0.4"
+        stroke="#B5AC94" stroke-width="0.4" stroke-dasharray="1,6" opacity="0.4"
       />
 
       <!-- y-axis labels -->
       {#each yAxisLabels as lab (lab.label)}
-        <text x="6" y={yFor(lab.v) + 3} font-family="JetBrains Mono" font-size="9" fill="#5C544A">
+        <text x="6" y={yFor(lab.v) + 3} font-family="JetBrains Mono" font-size="9" fill="#948B7A">
           {lab.label}
         </text>
       {/each}
-      <text x={padX + 6} y={yFor(mean + sigma) - 3} font-family="JetBrains Mono" font-size="9" fill="#5C544A" opacity="0.7">
+      <text x={padX + 6} y={yFor(mean + sigma) - 3} font-family="JetBrains Mono" font-size="9" fill="#948B7A" opacity="0.7">
         +1σ
       </text>
-      <text x={padX + 6} y={yFor(mean - sigma) + 11} font-family="JetBrains Mono" font-size="9" fill="#5C544A" opacity="0.7">
+      <text x={padX + 6} y={yFor(mean - sigma) + 11} font-family="JetBrains Mono" font-size="9" fill="#948B7A" opacity="0.7">
         −1σ
       </text>
     {/if}
@@ -223,7 +223,7 @@
         />
       {/if}
     {:else}
-      <text x={W / 2} y={H / 2} font-family="JetBrains Mono" font-size="11" fill="#5C544A" text-anchor="middle">
+      <text x={W / 2} y={H / 2} font-family="JetBrains Mono" font-size="11" fill="#948B7A" text-anchor="middle">
         No data
       </text>
     {/if}

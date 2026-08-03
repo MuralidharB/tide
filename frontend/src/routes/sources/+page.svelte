@@ -209,14 +209,14 @@
     justify-self: start;
   }
   .src-status.live {
-    background: rgba(111, 207, 151, 0.12);
+    background: rgba(46, 155, 93, 0.14);
     color: var(--pos);
-    border: 1px solid rgba(111, 207, 151, 0.28);
+    border: 1px solid rgba(46, 155, 93, 0.32);
   }
   .src-status.stub {
-    background: rgba(148, 139, 122, 0.08);
+    background: rgba(148, 139, 122, 0.14);
     color: var(--text-2);
-    border: 1px solid rgba(148, 139, 122, 0.22);
+    border: 1px solid rgba(148, 139, 122, 0.32);
   }
   .scheduler-section { margin-bottom: 32px; }
   .jobs-header {

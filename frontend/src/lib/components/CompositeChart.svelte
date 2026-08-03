@@ -14,7 +14,7 @@
   const zMax = 2;
 
   const TICK_COUNT = 6;
-  const SPY_COLOR = '#5DD3C0';   // muted teal, from --tier3 palette
+  const SPY_COLOR = '#2C9E8B';   // darker teal for contrast on light bg
 
   $: hasData = history.length >= 2;
 
@@ -204,18 +204,18 @@
           <stop offset="100%" stop-color={latestColor} stop-opacity="0" />
         </linearGradient>
         <pattern id="gridComposite" width="80" height="44" patternUnits="userSpaceOnUse">
-          <path d="M 80 0 L 0 0 0 44" fill="none" stroke="#221F1A" stroke-width="0.5" />
+          <path d="M 80 0 L 0 0 0 44" fill="none" stroke="#E8E3D2" stroke-width="0.5" />
         </pattern>
       </defs>
       <rect width={W} height={H} fill="url(#gridComposite)" />
-      <line x1="0" y1={yFor(0)} x2={W} y2={yFor(0)} stroke="#2C2823" stroke-width="0.5" stroke-dasharray="3,4" />
-      <line x1="0" y1={yFor(1)} x2={W} y2={yFor(1)} stroke="#2C2823" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.6" />
-      <line x1="0" y1={yFor(-1)} x2={W} y2={yFor(-1)} stroke="#2C2823" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.6" />
+      <line x1="0" y1={yFor(0)} x2={W} y2={yFor(0)} stroke="#B5AC94" stroke-width="0.5" stroke-dasharray="3,4" />
+      <line x1="0" y1={yFor(1)} x2={W} y2={yFor(1)} stroke="#B5AC94" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.6" />
+      <line x1="0" y1={yFor(-1)} x2={W} y2={yFor(-1)} stroke="#B5AC94" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.6" />
 
       <!-- Left y-axis (σ) labels -->
-      <text x="6" y={yFor(0) - 4} font-family="JetBrains Mono" font-size="9" fill="#5C544A">0.0σ</text>
-      <text x="6" y={yFor(1) - 4} font-family="JetBrains Mono" font-size="9" fill="#5C544A">+1.0σ</text>
-      <text x="6" y={yFor(-1) + 12} font-family="JetBrains Mono" font-size="9" fill="#5C544A">−1.0σ</text>
+      <text x="6" y={yFor(0) - 4} font-family="JetBrains Mono" font-size="9" fill="#948B7A">0.0σ</text>
+      <text x="6" y={yFor(1) - 4} font-family="JetBrains Mono" font-size="9" fill="#948B7A">+1.0σ</text>
+      <text x="6" y={yFor(-1) + 12} font-family="JetBrains Mono" font-size="9" fill="#948B7A">−1.0σ</text>
 
       <!-- Right y-axis (SPY %) labels -->
       {#if spyBase != null && spyPctBound > 0}
@@ -250,7 +250,7 @@
           />
         {/if}
       {:else}
-        <text x={W / 2} y={H / 2} font-family="JetBrains Mono" font-size="11" fill="#5C544A" text-anchor="middle">
+        <text x={W / 2} y={H / 2} font-family="JetBrains Mono" font-size="11" fill="#948B7A" text-anchor="middle">
           Run `make backfill-composite` to populate the history
         </text>
       {/if}
@@ -287,7 +287,7 @@
           {#each [1, 2, 3, 4] as tier}
             {@const tv = hover.tier_zs[String(tier)]}
             {#if tv != null}
-              {@const tColor = tier === 1 ? '#4A8FE7' : tier === 2 ? '#B97AE0' : tier === 3 ? '#5DD3C0' : '#F4C95D'}
+              {@const tColor = tier === 1 ? '#2F6DC8' : tier === 2 ? '#8F4EC8' : tier === 3 ? '#2C9E8B' : '#A78115'}
               <div class="tt-row tt-tier">
                 <span class="tt-swatch" style="background: {tColor}; opacity: 0.7"></span>
                 <span class="tt-label tt-tier-label">Tier {['','I','II','III','IV'][tier]}</span>
@@ -388,7 +388,7 @@
   .hover-dot.pos { background: var(--pos); }
   .hover-dot.neg { background: var(--neg); }
   .hover-dot.neu { background: var(--text-2); }
-  .hover-dot.spy { background: #5DD3C0; opacity: 0.9; }
+  .hover-dot.spy { background: #2C9E8B; opacity: 0.9; }
   .chart-tooltip {
     position: absolute;
     top: -6px;
@@ -458,7 +458,7 @@
   .tt-val.pos { color: var(--pos); }
   .tt-val.neg { color: var(--neg); }
   .tt-val.neu { color: var(--text-2); }
-  .tt-val.spy { color: #5DD3C0; }
+  .tt-val.spy { color: #2C9E8B; }
   .tt-sub {
     display: block;
     font-family: var(--mono);

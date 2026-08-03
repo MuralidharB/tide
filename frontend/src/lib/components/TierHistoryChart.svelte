@@ -19,10 +19,10 @@
 
   const TICK_COUNT = 6;
   const TIER_COLORS: Record<number, string> = {
-    1: '#4A8FE7',
-    2: '#B97AE0',
-    3: '#5DD3C0',
-    4: '#F4C95D',
+    1: '#2F6DC8',
+    2: '#8F4EC8',
+    3: '#2C9E8B',
+    4: '#A78115',
   };
 
   $: color = TIER_COLORS[tierNumber];
@@ -131,12 +131,12 @@
         </linearGradient>
       </defs>
 
-      <line x1="0" y1={yFor(0)} x2={W} y2={yFor(0)} stroke="#2C2823" stroke-width="0.5" stroke-dasharray="3,4" />
-      <line x1="0" y1={yFor(1)} x2={W} y2={yFor(1)} stroke="#2C2823" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.6" />
-      <line x1="0" y1={yFor(-1)} x2={W} y2={yFor(-1)} stroke="#2C2823" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.6" />
-      <text x="6" y={yFor(0) - 4} font-family="JetBrains Mono" font-size="9" fill="#5C544A">0.0σ</text>
-      <text x="6" y={yFor(1) - 4} font-family="JetBrains Mono" font-size="9" fill="#5C544A">+1.0σ</text>
-      <text x="6" y={yFor(-1) + 12} font-family="JetBrains Mono" font-size="9" fill="#5C544A">−1.0σ</text>
+      <line x1="0" y1={yFor(0)} x2={W} y2={yFor(0)} stroke="#B5AC94" stroke-width="0.5" stroke-dasharray="3,4" />
+      <line x1="0" y1={yFor(1)} x2={W} y2={yFor(1)} stroke="#B5AC94" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.6" />
+      <line x1="0" y1={yFor(-1)} x2={W} y2={yFor(-1)} stroke="#B5AC94" stroke-width="0.5" stroke-dasharray="2,5" opacity="0.6" />
+      <text x="6" y={yFor(0) - 4} font-family="JetBrains Mono" font-size="9" fill="#948B7A">0.0σ</text>
+      <text x="6" y={yFor(1) - 4} font-family="JetBrains Mono" font-size="9" fill="#948B7A">+1.0σ</text>
+      <text x="6" y={yFor(-1) + 12} font-family="JetBrains Mono" font-size="9" fill="#948B7A">−1.0σ</text>
 
       {#if hasData}
         <path d={fillPath} fill="url(#tierGrad{tierNumber})" stroke="none" />
@@ -151,7 +151,7 @@
           />
         {/if}
       {:else}
-        <text x={W / 2} y={H / 2} font-family="JetBrains Mono" font-size="11" fill="#5C544A" text-anchor="middle">
+        <text x={W / 2} y={H / 2} font-family="JetBrains Mono" font-size="11" fill="#948B7A" text-anchor="middle">
           Run `make backfill-composite` to populate the history
         </text>
       {/if}

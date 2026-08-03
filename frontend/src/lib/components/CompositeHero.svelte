@@ -15,10 +15,10 @@
   $: tierZs = latestPoint?.tier_zs ?? {};
 
   const TIER_META: Record<number, { name: string; href: string; color: string }> = {
-    1: { name: 'Macro Liquidity',   href: '/macro-liquidity', color: '#4A8FE7' },
-    2: { name: 'Capital Flows',     href: '/capital-flows',   color: '#B97AE0' },
-    3: { name: 'Microstructure',    href: '/microstructure',  color: '#5DD3C0' },
-    4: { name: 'Sentiment/Position',href: '/positioning',     color: '#F4C95D' },
+    1: { name: 'Macro Liquidity',   href: '/macro-liquidity', color: '#2F6DC8' },
+    2: { name: 'Capital Flows',     href: '/capital-flows',   color: '#8F4EC8' },
+    3: { name: 'Microstructure',    href: '/microstructure',  color: '#2C9E8B' },
+    4: { name: 'Sentiment/Position',href: '/positioning',     color: '#A78115' },
   };
 
   function fmtZ(v: number | null | undefined): string {
@@ -106,7 +106,7 @@
     transition: border-color 0.12s, background 0.12s;
   }
   .tier-chip:hover {
-    border-color: rgba(244, 201, 93, 0.4);
+    border-color: rgba(167, 129, 21, 0.5);
     background: var(--bg-card-hover);
   }
   .tier-chip-dot {
